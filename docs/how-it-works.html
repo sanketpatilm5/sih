@@ -1,0 +1,680 @@
+<title>Bhoomi3D Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600;700&display=swap">
+
+<style>
+  :root {
+    --bg:#F1F3F0; --surface:#FAFBF9; --surface-2:#E8ECE7;
+    --ink:#191E22; --ink-soft:#3B454A; --muted:#5F6B66;
+    --rule:#D2D9D0; --rule-soft:#E2E7E0;
+    --accent:#9C6412; --accent-ink:#7A4E0B; --accent-wash:#F3E7D2;
+    --risk:#9E3129; --risk-wash:#F6E3E1;
+    --ok:#2C6247; --ok-wash:#DFEDE5;
+    --blue:#2B5C7A; --blue-wash:#DEEAF1;
+    --shadow:0 1px 2px rgba(25,30,34,.05), 0 8px 24px -12px rgba(25,30,34,.15);
+    --measure:68ch;
+    --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:#12161A; --surface:#191E23; --surface-2:#222A30;
+      --ink:#E6EAE6; --ink-soft:#C2CAC6; --muted:#8D9A94;
+      --rule:#2C353B; --rule-soft:#232B31;
+      --accent:#E0A33D; --accent-ink:#F0BE68; --accent-wash:#33280F;
+      --risk:#E67A72; --risk-wash:#331C1A;
+      --ok:#6FBE93; --ok-wash:#172C22;
+      --blue:#79B4D4; --blue-wash:#16262F;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#12161A; --surface:#191E23; --surface-2:#222A30;
+    --ink:#E6EAE6; --ink-soft:#C2CAC6; --muted:#8D9A94;
+    --rule:#2C353B; --rule-soft:#232B31;
+    --accent:#E0A33D; --accent-ink:#F0BE68; --accent-wash:#33280F;
+    --risk:#E67A72; --risk-wash:#331C1A;
+    --ok:#6FBE93; --ok-wash:#172C22;
+    --blue:#79B4D4; --blue-wash:#16262F;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-ink);text-underline-offset:2px}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  h1,h2,h3{font-family:var(--serif);text-wrap:balance;margin:0}
+  p{margin:0} ul,ol{margin:0;padding-left:1.25rem} li{margin-block:.3rem}
+  code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);
+       padding:.1em .34em;border-radius:3px}
+
+  .wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+
+  header.top{background:var(--surface);border-bottom:1px solid var(--rule);
+             padding-block:clamp(2.2rem,5vw,3.2rem) clamp(1.6rem,4vw,2.2rem)}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;
+           text-transform:uppercase;color:var(--muted)}
+  header.top h1{font-size:clamp(2rem,5vw,3rem);font-weight:700;line-height:1.07;
+                letter-spacing:-.02em;margin:1rem 0 .9rem}
+  header.top h1 em{font-style:normal;color:var(--accent-ink)}
+  .stand{max-width:var(--measure);font-size:clamp(1rem,1.6vw,1.12rem);color:var(--ink-soft)}
+
+  main{padding-block:3rem 5rem;display:grid;gap:3.6rem}
+  section{display:grid;gap:1.1rem;scroll-margin-top:1rem}
+  section>p,section>ul,section>ol{max-width:var(--measure)}
+  .sec-head{display:grid;gap:.4rem;padding-bottom:.85rem;border-bottom:2px solid var(--ink)}
+  .sec-num{font-family:var(--mono);font-size:.74rem;letter-spacing:.14em;
+           color:var(--accent-ink);text-transform:uppercase}
+  .sec-head h2{font-size:clamp(1.45rem,3vw,1.9rem);font-weight:600;letter-spacing:-.015em}
+  h3{font-size:1.12rem;font-weight:600;margin-top:1rem}
+  h4{font-family:var(--sans);font-size:.76rem;font-weight:600;letter-spacing:.1em;
+     text-transform:uppercase;color:var(--muted)}
+  .muted{color:var(--muted)}
+
+  figure{margin:0;display:grid;gap:.65rem}
+  figcaption{font-size:.85rem;color:var(--muted);max-width:var(--measure)}
+  .frame{background:var(--surface);border:1px solid var(--rule);border-radius:6px;
+         padding:1.3rem;overflow-x:auto}
+  .frame svg{display:block;width:100%;height:auto}
+  .frame.tight{padding:0;overflow:hidden}
+  .frame.tight svg{min-width:520px}
+
+  pre{margin:0;background:var(--surface-2);border:1px solid var(--rule);border-radius:6px;
+      padding:.9rem 1.05rem;overflow-x:auto;font-family:var(--mono);font-size:.82rem;
+      line-height:1.58;color:var(--ink-soft)}
+  pre code{background:none;padding:0;font-size:inherit}
+  .k{color:var(--accent-ink)} .s{color:var(--ok)} .c{color:var(--muted)} .n{color:var(--blue)}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;align-items:start}
+  @media(max-width:820px){.split{grid-template-columns:1fr}}
+
+  .note{border-left:3px solid var(--accent);background:var(--accent-wash);
+        padding:.9rem 1.1rem;border-radius:0 5px 5px 0;display:grid;gap:.4rem;
+        max-width:var(--measure)}
+  .note h4{color:var(--accent-ink)}
+  .note.ok{border-left-color:var(--ok);background:var(--ok-wash)}
+  .note.ok h4{color:var(--ok)}
+  .note.warn{border-left-color:var(--risk);background:var(--risk-wash)}
+  .note.warn h4{color:var(--risk)}
+
+  .table-scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;
+                background:var(--surface)}
+  table{border-collapse:collapse;width:100%;font-size:.89rem;min-width:600px}
+  th,td{padding:.6rem .9rem;text-align:left;vertical-align:top;
+        border-bottom:1px solid var(--rule-soft)}
+  thead th{font-family:var(--mono);font-size:.69rem;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--muted);font-weight:500;
+           background:var(--surface-2);border-bottom:1px solid var(--rule)}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono{font-family:var(--mono);font-size:.81rem}
+  caption{caption-side:bottom;text-align:left;padding:.65rem .9rem;font-size:.79rem;
+          color:var(--muted);border-top:1px solid var(--rule-soft)}
+
+  .steps{display:grid;gap:1.5rem;counter-reset:step}
+  .step{display:grid;grid-template-columns:2.1rem minmax(0,1fr);gap:0 1rem}
+  .step::before{counter-increment:step;content:counter(step);
+                font-family:var(--mono);font-size:.85rem;color:var(--accent-ink);
+                width:2.1rem;height:2.1rem;border-radius:50%;display:grid;
+                place-items:center;background:var(--surface);
+                border:1px solid var(--rule)}
+  .step-body{display:grid;gap:.7rem;min-width:0}
+  .step-body h3{margin:0;font-size:1.08rem}
+
+  .pill{display:inline-block;font-family:var(--mono);font-size:.67rem;
+        letter-spacing:.06em;text-transform:uppercase;padding:.14rem .5rem;
+        border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+  .pill.a{color:var(--ok)} .pill.b{color:var(--blue)} .pill.c{color:var(--muted)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:.85rem}
+  .card{border:1px solid var(--rule);border-radius:6px;background:var(--surface);
+        padding:.9rem 1rem;display:grid;gap:.3rem}
+  .card b{font-size:.95rem}
+  .card span{font-size:.85rem;color:var(--muted)}
+
+  footer{border-top:1px solid var(--rule);padding-block:2rem 3rem;font-size:.85rem;
+         color:var(--muted);max-width:var(--measure);display:grid;gap:.5rem}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Bhoomi3D &middot; hands-on walkthrough</div>
+    <h1>Draw it flat. <em>Get it back as property.</em></h1>
+    <p class="stand">
+      What the software is, what it is made of, and exactly where you upload a
+      2D plan to get a 3D register with ownership and identifiers. Written for
+      someone who has not seen the code.
+    </p>
+  </div>
+</header>
+
+<div class="wrap"><main>
+
+<!-- ============ 1 ============ -->
+<section id="idea">
+  <div class="sec-head">
+    <div class="sec-num">01 &middot; The idea</div>
+    <h2>One polygon, one level, one height</h2>
+  </div>
+
+  <p>
+    The entire system rests on a single equation. Everything else &mdash; the
+    identifiers, the validation, the 3D viewer &mdash; is built on top of it:
+  </p>
+
+  <figure>
+    <div class="frame">
+      <svg viewBox="0 0 700 210" role="img" aria-label="A flat rectangle labelled FLAT-201 with a floor level and floor height becomes a 3D box with area, volume and a ULPIN.">
+        <g font-family="IBM Plex Mono, monospace" font-size="11">
+          <!-- 2D side -->
+          <text x="20" y="20" fill="var(--muted)" font-size="10" letter-spacing="1.4">WHAT YOU DRAW</text>
+          <polygon points="24,44 168,44 168,148 24,148" fill="var(--accent-wash)"
+                   stroke="var(--accent)" stroke-width="1.6"/>
+          <text x="96" y="100" fill="var(--ink-soft)" text-anchor="middle">FLAT-201</text>
+          <text x="96" y="166" fill="var(--muted)" text-anchor="middle" font-size="10">a 2D polygon</text>
+          <text x="24" y="188" fill="var(--muted)" font-size="10">level 2 &middot; height 3.0 m</text>
+
+          <!-- arrow -->
+          <g stroke="var(--muted)" fill="var(--muted)">
+            <line x1="196" y1="96" x2="268" y2="96" stroke-width="1.4"/>
+            <path d="M268 91 L280 96 L268 101 z"/>
+          </g>
+          <text x="238" y="86" fill="var(--muted)" text-anchor="middle" font-size="10">sweep</text>
+
+          <!-- 3D side -->
+          <text x="310" y="20" fill="var(--muted)" font-size="10" letter-spacing="1.4">WHAT YOU GET</text>
+          <g>
+            <polygon points="330,80 474,80 516,52 372,52" fill="var(--accent-wash)"
+                     stroke="var(--accent)" stroke-width="1.6"/>
+            <polygon points="330,80 474,80 474,150 330,150" fill="var(--surface-2)"
+                     stroke="var(--accent)" stroke-width="1.6"/>
+            <polygon points="474,80 516,52 516,122 474,150" fill="var(--surface-2)"
+                     stroke="var(--accent)" stroke-width="1.6" opacity=".75"/>
+          </g>
+          <!-- height dimension -->
+          <g stroke="var(--blue)" fill="var(--blue)">
+            <line x1="536" y1="60" x2="536" y2="130" stroke-width="1"/>
+            <path d="M533 60 L539 60 M533 130 L539 130" stroke-width="1"/>
+            <text x="544" y="98" font-size="10">3.0 m</text>
+          </g>
+          <text x="330" y="176" fill="var(--ink-soft)" font-size="10">area 260 m&#178; &middot; volume 780 m&#179;</text>
+          <text x="330" y="192" fill="var(--accent-ink)" font-size="10">27-025-004-tek92et7bx-B02-00C9-4</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      A flat shape plus two numbers becomes a solid with a measurable volume, an
+      owner, and a permanent identifier. That solid is the property.
+    </figcaption>
+  </figure>
+
+  <p>
+    Today a land record can describe the plot &mdash; the outline on the ground.
+    It cannot describe the flat on the eighth floor, the parking bay below it,
+    or the water main under the road, because all three sit at the
+    <em>same</em> ground coordinates. Stack the equation above and you can
+    describe every one of them separately.
+  </p>
+
+  <div class="note">
+    <h4>Say it like this</h4>
+    <p>
+      "We take the 2D plans that already exist, add the floor levels, and turn
+      every flat, shop and parking bay into a 3D volume with its own number."
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="ways">
+  <div class="sec-head">
+    <div class="sec-num">02 &middot; Two ways in</div>
+    <h2>Plan upload, or drone survey</h2>
+  </div>
+
+  <p>
+    Both roads end at the same register. They differ in what they can tell you
+    &mdash; and the second one is why the project has an AI component at all.
+  </p>
+
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th></th><th>2D plan upload</th><th>Drone / LiDAR survey</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>What you supply</b></td>
+          <td>A JSON file of polygons and floor heights</td>
+          <td>A LAS/LAZ point cloud, orthophoto, GNSS control</td>
+        </tr>
+        <tr>
+          <td><b>Who has it</b></td>
+          <td>Every municipal building-permission office</td>
+          <td>Survey contractors; SVAMITVA drone programme</td>
+        </tr>
+        <tr>
+          <td><b>Time to run</b></td>
+          <td class="mono">under 1 second</td>
+          <td class="mono">~17 seconds per city block</td>
+        </tr>
+        <tr>
+          <td><b>What it tells you</b></td>
+          <td>The <b>sanctioned</b> state &mdash; what was approved on paper</td>
+          <td>The <b>as-built</b> state &mdash; what is actually standing</td>
+        </tr>
+        <tr>
+          <td><b>Can it find unauthorised floors?</b></td>
+          <td>No. Nothing contradicts the plan.</td>
+          <td>Yes. It measures the building independently.</td>
+        </tr>
+        <tr>
+          <td><b>Code path</b></td>
+          <td class="mono">plan2d.build_register()</td>
+          <td class="mono">pipeline.run_pipeline()</td>
+        </tr>
+        <tr>
+          <td><b>Status</b></td>
+          <td><span class="pill a">Just built &mdash; new</span></td>
+          <td><span class="pill b">Already working</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <caption>
+      Same register, same identifiers, same validation, same viewer. Only the
+      source of the polygons differs.
+    </caption>
+  </div>
+
+  <div class="note ok">
+    <h4>Why both matter</h4>
+    <p>
+      The 2D path is what a tehsil office can run this afternoon with data it
+      already holds. The survey path is what catches the builder who added a
+      twelfth floor to an eleven-floor sanction. Run the first to build the
+      record; run the second to check it against reality.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="stack">
+  <div class="sec-head">
+    <div class="sec-num">03 &middot; Tech stack</div>
+    <h2>What it is made of</h2>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Part</th><th>Built with</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><b>Backend</b></td><td class="mono">Python 3.12, FastAPI, Uvicorn</td>
+            <td>Standard and reviewable. FastAPI generates the interactive API docs from the code itself.</td></tr>
+        <tr><td><b>Geometry</b></td><td class="mono">Shapely, NumPy</td>
+            <td>Every property is a prism &mdash; a polygon swept between two heights &mdash; so overlaps and clearances come out exact without a mesh library.</td></tr>
+        <tr><td><b>Coordinates</b></td><td class="mono">custom WGS-84 / local ENU</td>
+            <td>Written directly so there is no PROJ or GDAL to install. Metres in, latitude/longitude out.</td></tr>
+        <tr><td><b>Point-cloud AI</b></td><td class="mono">SciPy &mdash; SMRF, DBSCAN, RANSAC, PCA</td>
+            <td>Published, auditable algorithms that need no training data. A land record has to be explainable.</td></tr>
+        <tr><td><b>Survey file formats</b></td><td class="mono">laspy, rasterio, Pillow</td>
+            <td>Reads the LAS/LAZ and GeoTIFF a contractor actually delivers. All optional &mdash; the app still starts without them.</td></tr>
+        <tr><td><b>3D viewer</b></td><td class="mono">hand-written WebGL2</td>
+            <td>No Three.js, no CDN, no internet at runtime. A demo that dies on bad wifi is a demo we lose.</td></tr>
+        <tr><td><b>Storage</b></td><td class="mono">JSON document</td>
+            <td>Right for hundreds of objects. PostGIS slots into the same interface for city scale.</td></tr>
+        <tr><td><b>Tests</b></td><td class="mono">pytest &mdash; 158 tests, ~30 s</td>
+            <td>Including one that runs the real pipeline end to end and asserts the accuracy figures.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="cards">
+    <div class="card"><b>No API keys</b><span>Nothing phones home. Runs fully offline.</span></div>
+    <div class="card"><b>No licence cost</b><span>Every dependency is open source.</span></div>
+    <div class="card"><b>One laptop</b><span>No GPU, no server, no cloud account.</span></div>
+    <div class="card"><b>~11,000 lines</b><span>Backend, viewer, tests and docs.</span></div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="upload">
+  <div class="sec-head">
+    <div class="sec-num">04 &middot; The 2D &rarr; 3D walkthrough</div>
+    <h2>Where to upload, and what happens</h2>
+  </div>
+
+  <p>
+    Start the software, then open <code>http://127.0.0.1:8000/</code> and click
+    the <b>2D &rarr; 3D</b> tab on the right-hand side. That tab is the upload
+    point. Five steps, start to finish.
+  </p>
+
+  <pre><code><span class="c"># start it (Windows)</span>
+<span class="k">.venv/Scripts/python scripts/serve.py</span>
+
+<span class="c"># macOS / Linux</span>
+<span class="k">.venv/bin/python scripts/serve.py</span></code></pre>
+
+  <div class="steps">
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Take a sample plan</h3>
+        <p>
+          In the <b>2D &rarr; 3D</b> tab, press <b>Simple plot</b> or
+          <b>Housing society</b>. Both are also already on disk in the
+          <code>samples/</code> folder, along with a drawing of every floor.
+        </p>
+        <pre><code><span class="k">python scripts/make_samples.py</span>
+
+samples/plan-simple.json      <span class="c">&larr; edit and upload this</span>
+samples/plan-society.json     <span class="c">&larr; or this</span>
+samples/plan-simple-f1.svg    <span class="c">&larr; a drawing of floor 1</span></code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Edit it &mdash; this is the &ldquo;2D diagram&rdquo;</h3>
+        <p>
+          Open the file in any text editor. Coordinates are plain metres from a
+          corner of the site; <code>[8, 6]</code> means 8 m east, 6 m north.
+          Change the numbers to match your building.
+        </p>
+
+        <div class="split">
+          <div>
+            <h4>The plan file</h4>
+            <pre><code>{
+  <span class="k">"site"</span>: {
+    <span class="k">"name"</span>: <span class="s">"Demo Plot"</span>,
+    <span class="k">"origin"</span>: { <span class="k">"lat"</span>: <span class="n">18.52043</span>,
+                <span class="k">"lon"</span>: <span class="n">73.856744</span> }
+  },
+  <span class="k">"parcels"</span>: [{
+    <span class="k">"id"</span>: <span class="s">"P-01"</span>,
+    <span class="k">"owner"</span>: <span class="s">"Sharda Society"</span>,
+    <span class="k">"boundary"</span>: [[<span class="n">0</span>,<span class="n">0</span>],[<span class="n">44</span>,<span class="n">0</span>],
+                 [<span class="n">44</span>,<span class="n">32</span>],[<span class="n">0</span>,<span class="n">32</span>]]
+  }],
+  <span class="k">"buildings"</span>: [{
+    <span class="k">"id"</span>: <span class="s">"B-01"</span>,
+    <span class="k">"floors"</span>: [{
+      <span class="k">"level"</span>: <span class="n">1</span>,
+      <span class="k">"repeat_to"</span>: <span class="n">3</span>,      <span class="c">// floors 1-3</span>
+      <span class="k">"height"</span>: <span class="n">3.0</span>,
+      <span class="k">"units"</span>: [{
+        <span class="k">"name"</span>: <span class="s">"FLAT-{n}01"</span>,
+        <span class="k">"owner"</span>: <span class="s">"Owner {n}01"</span>,
+        <span class="k">"boundary"</span>: [[<span class="n">8</span>,<span class="n">6</span>],[<span class="n">21</span>,<span class="n">6</span>],
+                     [<span class="n">21</span>,<span class="n">26</span>],[<span class="n">8</span>,<span class="n">26</span>]]
+      }]
+    }]
+  }]
+}</code></pre>
+          </div>
+          <div>
+            <h4>What that draws</h4>
+            <div class="frame tight">
+              <svg viewBox="0 0 720 455" role="img" aria-label="Floor plan of the sample building showing the parcel boundary, two flats and a water main.">
+                <rect width="720" height="455" fill="#FAFBF9"/><line x1="19.8" y1="0" x2="19.8" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="126.1" y1="0" x2="126.1" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="232.4" y1="0" x2="232.4" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="338.7" y1="0" x2="338.7" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="445.0" y1="0" x2="445.0" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="551.4" y1="0" x2="551.4" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="657.7" y1="0" x2="657.7" y2="455" stroke="#E2E7E0" stroke-width="1"/><line x1="0" y1="397.7" x2="720" y2="397.7" stroke="#E2E7E0" stroke-width="1"/><line x1="0" y1="291.4" x2="720" y2="291.4" stroke="#E2E7E0" stroke-width="1"/><line x1="0" y1="185.1" x2="720" y2="185.1" stroke="#E2E7E0" stroke-width="1"/><line x1="0" y1="78.8" x2="720" y2="78.8" stroke="#E2E7E0" stroke-width="1"/><polygon points="126.1,397.7 593.9,397.7 593.9,57.6 126.1,57.6 126.1,397.7" fill="none" stroke="#5C8C61" stroke-width="2" stroke-dasharray="6 4"/><text x="360.0" y="227.6" font-size="10" fill="#3B454A" text-anchor="middle">P-01</text><polygon points="207.5,120.6 207.4,334.0 209.1,337.0 211.2,337.7 508.8,337.7 511.9,336.0 512.6,334.0 512.6,121.3 510.9,118.2 508.8,117.6 211.2,117.6 208.8,118.5 207.5,120.6" fill="#00000010" stroke="#4A5364" stroke-width="1.6"/><polygon points="211.2,334.0 349.4,334.0 349.4,121.3 211.2,121.3 211.2,334.0" fill="#E0BC7555" stroke="#B8791C" stroke-width="1.2"/><text x="280.3" y="227.6" font-size="10" fill="#3B454A" text-anchor="middle">FLAT-101</text><polygon points="370.6,334.0 508.8,334.0 508.8,121.3 370.6,121.3 370.6,334.0" fill="#E0BC7555" stroke="#B8791C" stroke-width="1.2"/><text x="439.7" y="227.6" font-size="10" fill="#3B454A" text-anchor="middle">FLAT-102</text><polygon points="657.7,84.7 658.1,84.7 658.6,84.8 659.0,84.9 659.5,85.0 659.9,85.2 660.3,85.5 660.7,85.7 661.0,86.1 661.4,86.4 661.6,86.8 661.9,87.2 662.1,87.6 662.2,88.1 662.4,88.5 662.4,89.0 662.4,89.4 662.4,89.9 662.4,90.4 662.2,90.8 662.1,91.3 661.9,91.7 661.6,92.1 661.4,92.5 661.0,92.8 660.7,93.1 660.3,93.4 659.9,93.7 659.5,93.9 659.0,94.0 658.6,94.1 658.1,94.2 657.7,94.2 62.3,94.2 61.9,94.2 61.4,94.1 61.0,94.0 60.5,93.9 60.1,93.7 59.7,93.4 59.3,93.1 59.0,92.8 58.6,92.5 58.4,92.1 58.1,91.7 57.9,91.3 57.8,90.8 57.6,90.4 57.6,89.9 57.6,89.4 57.6,89.0 57.6,88.5 57.8,88.1 57.9,87.6 58.1,87.2 58.4,86.8 58.6,86.4 59.0,86.1 59.3,85.7 59.7,85.5 60.1,85.2 60.5,85.0 61.0,84.9 61.4,84.8 61.9,84.7 62.3,84.7 657.7,84.7" fill="#ED545933" stroke="#ED5459" stroke-width="1.2" stroke-dasharray="4 3"/><g transform="translate(12,437)"><line x1="0" y1="0" x2="106.3" y2="0" stroke="#191E22" stroke-width="2"/><line x1="0" y1="-4" x2="0" y2="4" stroke="#191E22" stroke-width="2"/><line x1="106.3" y1="-4" x2="106.3" y2="4" stroke="#191E22" stroke-width="2"/><text x="53.2" y="-7" font-size="10" fill="#3B454A" text-anchor="middle">10 m</text></g><text x="708" y="18" font-size="11" fill="#5F6B66" text-anchor="end">Demo Plot &#183; floor 1</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="font-size:.87rem">
+          Green dashed = the parcel boundary. Amber = flats on this floor. Red
+          dashed = the water main running underground. The grid is 10 m.
+        </p>
+
+        <div class="note">
+          <h4>The shorthand that saves the most typing</h4>
+          <p>
+            <code>"repeat_to": 3</code> means &ldquo;levels 1 through 3 are
+            identical&rdquo;. <code>{n}</code> in a name becomes the floor
+            number, so <code>FLAT-{n}01</code> gives FLAT-101, FLAT-201,
+            FLAT-301. A ten-storey tower is one block of text, not ten copies.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Choose the file &mdash; it checks before it builds</h3>
+        <p>
+          Press <b>Choose a plan file</b> and pick your edited JSON. The
+          software immediately draws every floor back at you and reports what it
+          found. Nothing is built yet.
+        </p>
+        <pre><code><span class="c">1 parcels &nbsp; 1 buildings &nbsp; 5 storeys &nbsp; 9 units &nbsp; 1 corridors</span>
+<span class="c">Plan looks valid &mdash; 9 units across 5 storeys</span></code></pre>
+        <p>
+          If something is wrong, it says exactly what and where, in plain
+          language, before you waste time on a build:
+        </p>
+        <pre><code><span class="c">building B-01, level 2, unit FLAT-201:
+  a boundary needs at least 3 corner points, got 2</span>
+
+<span class="c">building B-01, level 0: floor height 300 m is outside
+  the plausible range 1.8-12 m. Heights are in metres.</span></code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Press <b>Build 3D register</b></h3>
+        <p>
+          Every unit polygon is swept through its floor's height range, given an
+          identifier, and slotted into the ownership hierarchy. Then the whole
+          register is validated. This takes under a second.
+        </p>
+        <pre><code>Built <span class="n">83</span> objects with <span class="n">83</span> ULPINs &mdash; no defects</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-body">
+        <h3>Explore what came out</h3>
+        <p>
+          The viewer reloads with your building in it. Click any flat and the
+          inspector shows its identifier decoded field by field, its area,
+          its volume, its height range and its owner.
+        </p>
+        <pre><code>FLAT-1003            <span class="c">Resident 1003</span>
+<span class="k">27-025-004-tek92et1uz-B0A-00RV-S</span>
+<span class="c">Above-ground unit, level 10 above ground, unit #1003</span>
+
+Object ID   B-01/L+10/FLAT-1003
+Plan area   <span class="n">182.00</span> m&#178;
+Volume      <span class="n">555.10</span> m&#179;
+Height      <span class="n">3.05</span> m
+Z range     <span class="n">31.25</span> &ndash; <span class="n">34.30</span> m
+Provenance  APPROVED PLAN</code></pre>
+        <p>
+          Then switch on <b>Column probe</b> and click the ground. You get every
+          object in that vertical column &mdash; air rights on top, ten floors of
+          flats, the shops at grade, two basement levels, and the metro tunnel
+          underneath. That list is the thing a 2D record cannot produce.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <h3>The same thing without the browser</h3>
+  <pre><code><span class="c"># upload a plan and build the register</span>
+<span class="k">curl -X POST http://127.0.0.1:8000/api/build-from-plan \
+     -H "Content-Type: application/json" \
+     --data-binary @samples/plan-society.json</span>
+
+<span class="c"># check a plan without building anything</span>
+<span class="k">curl -X POST http://127.0.0.1:8000/api/preview-plan?level=1 \
+     -H "Content-Type: application/json" \
+     --data-binary @samples/plan-simple.json</span>
+
+<span class="c"># download a sample to start from</span>
+<span class="k">curl http://127.0.0.1:8000/api/sample-plan?kind=society -o my-plan.json</span></code></pre>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="output">
+  <div class="sec-head">
+    <div class="sec-num">05 &middot; What comes out</div>
+    <h2>The register</h2>
+  </div>
+
+  <p>
+    Uploading the housing-society sample produces <b>83 objects</b>, each with
+    its own identifier, arranged in a hierarchy that mirrors how ownership
+    actually works:
+  </p>
+
+  <pre><code>P-01  <span class="c">parcel</span> &mdash; Ganga Co-op Housing Society
+ &#9492;&#9472; B-01  <span class="c">building</span> &mdash; Ganga Residency
+     &#9500;&#9472; B-01/L-02  <span class="c">basement 2</span>   &#8594; PARK-B2
+     &#9500;&#9472; B-01/L-01  <span class="c">basement 1</span>   &#8594; PARK-B1
+     &#9500;&#9472; B-01/L+00  <span class="c">ground floor</span> &#8594; SHOP-01, SHOP-02, SHOP-03
+     &#9500;&#9472; B-01/L+01  <span class="c">floor 1</span>      &#8594; FLAT-101 &hellip; FLAT-106
+     &#9482;   &#8942;
+     &#9492;&#9472; B-01/L+10  <span class="c">floor 10</span>     &#8594; FLAT-1001 &hellip; FLAT-1006
+ &#9492;&#9472; B-01/AIR  <span class="c">air rights</span> &mdash; 30 m column above the roof
+
+INF-METRO-01  <span class="c">metro tunnel</span> &mdash; crosses the site at &minus;15.4 m
+INF-WATER-01  <span class="c">water main</span>   &mdash; 2.0 m below ground</code></pre>
+
+  <p>And it is checked. Ten rules run over the whole thing:</p>
+
+  <ul>
+    <li><b>Overlapping ownership</b> &mdash; two units claiming the same cubic metres.
+      Two flats on <em>different</em> floors sharing a footprint is normal and is
+      deliberately <em>not</em> flagged.</li>
+    <li><b>Clearance</b> &mdash; a basement too close to a tunnel or a main, reported
+      as a distance in metres against the rule.</li>
+    <li><b>Unassigned floor area</b> &mdash; space no unit claims. Some is correct
+      (stairs, lifts); too much means a unit is missing from the record.</li>
+    <li><b>Containment</b> &mdash; a flat outside its own storey, a storey outside
+      its building.</li>
+    <li><b>Identifier integrity</b> &mdash; every object has exactly one, and no two
+      share.</li>
+  </ul>
+
+  <div class="note warn">
+    <h4>One rule deliberately stays quiet on a plan upload</h4>
+    <p>
+      <b>Unauthorised construction</b> cannot fire when you upload only a plan.
+      With no independent survey there is no evidence about what was actually
+      built, and reporting an offence on an absence of evidence would be a false
+      accusation. That check needs the drone path.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="who">
+  <div class="sec-head">
+    <div class="sec-num">06 &middot; In use</div>
+    <h2>Who touches it, and for what</h2>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Who</th><th>What they do</th><th>How</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Building-permission clerk</b></td>
+          <td>Registers a newly sanctioned building &mdash; every flat gets an identifier at approval time, not years later</td>
+          <td>Uploads the plan in the <b>2D &rarr; 3D</b> tab</td>
+        </tr>
+        <tr>
+          <td><b>Land-records officer</b></td>
+          <td>Looks up a property, checks who owns what, reads the validation findings</td>
+          <td>Search box and the 3D viewer. No training beyond clicking.</td>
+        </tr>
+        <tr>
+          <td><b>Metro / utility engineer</b></td>
+          <td>Asks whether a proposed excavation is clear of anything registered</td>
+          <td class="mono">GET /api/column</td>
+        </tr>
+        <tr>
+          <td><b>Survey contractor / state GIS cell</b></td>
+          <td>Runs the drone pipeline over a whole ward to check what is built against what was sanctioned</td>
+          <td class="mono">pipeline.run_pipeline()</td>
+        </tr>
+        <tr>
+          <td><b>Registrar</b></td>
+          <td>Cites a specific volume in a sale deed instead of &ldquo;Flat 502, second floor&rdquo;</td>
+          <td>Quotes the ULPIN, which is checksummed against typos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Everything the software can do</h3>
+  <div class="cards">
+    <div class="card"><b>2D &rarr; 3D tab</b><span>Upload a plan, preview each floor, build the register.</span></div>
+    <div class="card"><b>Inspector</b><span>Click any volume: identifier, area, volume, owner, provenance.</span></div>
+    <div class="card"><b>Column probe</b><span>Click the ground, get the whole vertical stack.</span></div>
+    <div class="card"><b>Validation</b><span>Every defect with the number that makes it one, and a fly-to button.</span></div>
+    <div class="card"><b>Accuracy</b><span>Every AI stage scored against ground truth.</span></div>
+    <div class="card"><b>Register tree</b><span>The full ownership hierarchy, parcel to flat.</span></div>
+    <div class="card"><b>Search</b><span>By ULPIN, owner name, flat number or object id.</span></div>
+    <div class="card"><b>Export</b><span>GeoJSON for QGIS, CityGML-style XML, raw register JSON.</span></div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="cheat">
+  <div class="sec-head">
+    <div class="sec-num">07 &middot; Command reference</div>
+    <h2>Everything, in order</h2>
+  </div>
+
+  <pre><code><span class="c"># --- one-time setup ---</span>
+<span class="k">python -m venv .venv</span>
+<span class="k">.venv/Scripts/python -m pip install -r backend/requirements.txt</span>
+
+<span class="c"># --- the drone-survey demo (builds its own data, ~30 s) ---</span>
+<span class="k">.venv/Scripts/python scripts/build_demo.py</span>
+
+<span class="c"># --- write the sample 2D plans and their drawings ---</span>
+<span class="k">.venv/Scripts/python scripts/make_samples.py</span>
+
+<span class="c"># --- start the viewer + API ---</span>
+<span class="k">.venv/Scripts/python scripts/serve.py</span>
+<span class="c">#   viewer    http://127.0.0.1:8000/
+#   API docs  http://127.0.0.1:8000/docs</span>
+
+<span class="c"># --- run the tests (158 of them) ---</span>
+<span class="k">.venv/Scripts/python -m pytest -q</span></code></pre>
+
+  <div class="note warn">
+    <h4>Before demonstrating &mdash; a real gotcha</h4>
+    <p>
+      If the viewer shows a site you do not expect, an old server is still
+      running and holding the previous register in memory. On Windows, close
+      every Python window, or run:
+    </p>
+    <pre style="background:transparent;border:none;padding:0;font-size:.8rem"><code>Get-CimInstance Win32_Process -Filter "Name like '%python%'" |
+  Where-Object { $_.CommandLine -like '*serve.py*' } |
+  Stop-Process -Force</code></pre>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Deeper reading: <code>README.md</code> for the overview,
+    <code>docs/ULPIN.md</code> for the identifier specification,
+    <code>docs/ARCHITECTURE.md</code> for design decisions, and the team brief
+    for the judge Q&amp;A and risk register.
+  </p>
+  <p>
+    The 2D&nbsp;&rarr;&nbsp;3D path lives in
+    <code>backend/bhoomi3d/plan2d.py</code>. The one line that does the
+    conversion is <code>Prism(polygon, z_bottom, z_top)</code>.
+  </p>
+</footer>
+
+</main></div>

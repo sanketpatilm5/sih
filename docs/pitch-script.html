@@ -1,0 +1,928 @@
+<title>Radiants Pitch Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@400;500;600;700&display=swap">
+
+<style>
+  :root{
+    --bg:#F1F3F0; --surface:#FAFBF9; --surface-2:#E8ECE7;
+    --ink:#191E22; --ink-soft:#3B454A; --muted:#5F6B66;
+    --rule:#D2D9D0; --rule-soft:#E2E7E0;
+    --accent:#9C6412; --accent-ink:#7A4E0B; --accent-wash:#F3E7D2;
+    --say:#1F4B63; --say-wash:#DEEAF1;
+    --risk:#9E3129; --risk-wash:#F6E3E1;
+    --ok:#2C6247; --ok-wash:#DFEDE5;
+    --shadow:0 1px 2px rgba(25,30,34,.05),0 8px 24px -12px rgba(25,30,34,.15);
+    --measure:66ch;
+    --sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+    --serif:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+    --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#12161A; --surface:#191E23; --surface-2:#222A30;
+      --ink:#E6EAE6; --ink-soft:#C2CAC6; --muted:#8D9A94;
+      --rule:#2C353B; --rule-soft:#232B31;
+      --accent:#E0A33D; --accent-ink:#F0BE68; --accent-wash:#33280F;
+      --say:#8FC4DF; --say-wash:#15252E;
+      --risk:#E67A72; --risk-wash:#331C1A;
+      --ok:#6FBE93; --ok-wash:#172C22;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#12161A; --surface:#191E23; --surface-2:#222A30;
+    --ink:#E6EAE6; --ink-soft:#C2CAC6; --muted:#8D9A94;
+    --rule:#2C353B; --rule-soft:#232B31;
+    --accent:#E0A33D; --accent-ink:#F0BE68; --accent-wash:#33280F;
+    --say:#8FC4DF; --say-wash:#15252E;
+    --risk:#E67A72; --risk-wash:#331C1A;
+    --ok:#6FBE93; --ok-wash:#172C22;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--serif);margin:0;text-wrap:balance}
+  p{margin:0} ul,ol{margin:0;padding-left:1.2rem} li{margin-block:.28rem}
+  code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);
+       padding:.1em .34em;border-radius:3px}
+  a{color:var(--accent-ink)}
+  a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+  .wrap{max-width:1020px;margin:0 auto;padding:0 clamp(1rem,4vw,2.4rem)}
+
+  /* ---- masthead ---- */
+  header.top{background:var(--surface);border-bottom:1px solid var(--rule);
+             padding-block:clamp(2rem,5vw,3rem) clamp(1.4rem,3vw,2rem)}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;
+           text-transform:uppercase;color:var(--muted)}
+  header.top h1{font-size:clamp(2rem,5.4vw,3.1rem);font-weight:700;line-height:1.05;
+                letter-spacing:-.022em;margin:.9rem 0 .8rem}
+  header.top h1 em{font-style:normal;color:var(--accent-ink)}
+  .stand{max-width:var(--measure);color:var(--ink-soft);font-size:1.05rem}
+  .runsheet{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.3rem;
+            border-top:1px solid var(--rule-soft);padding-top:1rem}
+  .runsheet a{font-family:var(--mono);font-size:.74rem;text-decoration:none;
+              color:var(--muted);border:1px solid var(--rule);border-radius:99px;
+              padding:.24rem .7rem;background:var(--surface)}
+  .runsheet a:hover{color:var(--accent-ink);border-color:var(--accent)}
+  .runsheet a b{color:var(--accent-ink);font-weight:500}
+
+  main{padding-block:2.6rem 4rem;display:grid;gap:2.6rem}
+
+  /* ---- a beat of the pitch ---- */
+  .beat{display:grid;grid-template-columns:88px minmax(0,1fr);gap:0 1.6rem;
+        scroll-margin-top:1rem}
+  .clock{display:grid;gap:.15rem;align-content:start;position:sticky;top:1rem;
+         height:max-content}
+  .clock .t{font-family:var(--mono);font-size:1.02rem;font-weight:600;
+            color:var(--accent-ink);font-variant-numeric:tabular-nums}
+  .clock .d{font-family:var(--mono);font-size:.7rem;color:var(--muted)}
+  .clock .who{font-size:.7rem;color:var(--muted);text-transform:uppercase;
+              letter-spacing:.09em;margin-top:.3rem}
+  .beat-body{display:grid;gap:.95rem;min-width:0;
+             border-left:1px solid var(--rule);padding-left:1.6rem;
+             padding-bottom:.4rem}
+  .beat-body>h2{font-size:clamp(1.35rem,2.8vw,1.7rem);font-weight:600;
+                letter-spacing:-.015em}
+  .beat-body>p,.beat-body>ul,.beat-body>ol{max-width:var(--measure)}
+  .slide{font-family:var(--mono);font-size:.73rem;letter-spacing:.1em;
+         text-transform:uppercase;color:var(--muted)}
+  .slide b{color:var(--ink-soft);font-weight:500}
+
+  /* ---- the analogy block: the spine of this deck ---- */
+  .analogy{background:var(--accent-wash);border:1px solid var(--accent);
+           border-radius:8px;padding:1rem 1.15rem;display:grid;gap:.5rem;
+           max-width:var(--measure)}
+  .analogy .lbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;
+                text-transform:uppercase;color:var(--accent-ink);
+                display:flex;align-items:center;gap:.5rem}
+  .analogy .lbl::before{content:"";width:14px;height:14px;flex:none;
+    background:currentColor;
+    -webkit-mask:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 21h6v-1H9v1zm3-19a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z' fill='black'/%3E%3C/svg%3E");
+    mask:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 21h6v-1H9v1zm3-19a7 7 0 00-4 12.7V17h8v-2.3A7 7 0 0012 2z' fill='black'/%3E%3C/svg%3E")}
+  .analogy .body{font-family:var(--serif);font-size:1.06rem;line-height:1.5;
+                 color:var(--ink)}
+  .analogy .tie{font-size:.9rem;color:var(--ink-soft);border-top:1px dashed var(--accent);
+                padding-top:.5rem}
+  .analogy .tie b{color:var(--accent-ink)}
+
+  /* ---- the line to actually say ---- */
+  .say{border-left:4px solid var(--say);background:var(--say-wash);
+       border-radius:0 6px 6px 0;padding:.85rem 1.1rem;display:grid;gap:.4rem;
+       max-width:var(--measure)}
+  .say .lbl{font-family:var(--mono);font-size:.66rem;letter-spacing:.14em;
+            text-transform:uppercase;color:var(--say)}
+  .say q{font-family:var(--serif);font-size:1.12rem;line-height:1.45;
+         font-weight:500;quotes:"\201C" "\201D"}
+  .say.small q{font-size:1rem}
+
+  .note{border-left:3px solid var(--muted);background:var(--surface);
+        padding:.75rem 1rem;border-radius:0 5px 5px 0;font-size:.9rem;
+        color:var(--ink-soft);max-width:var(--measure);display:grid;gap:.35rem}
+  .note.warn{border-left-color:var(--risk);background:var(--risk-wash)}
+  .note.ok{border-left-color:var(--ok);background:var(--ok-wash)}
+  .note h4{font-family:var(--sans);font-size:.74rem;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--muted);margin:0;font-weight:600}
+  .note.warn h4{color:var(--risk)} .note.ok h4{color:var(--ok)}
+
+  .fill{background:repeating-linear-gradient(45deg,var(--surface-2),
+        var(--surface-2) 6px,transparent 6px,transparent 12px);
+        border:1px dashed var(--accent);border-radius:5px;padding:.6rem .9rem;
+        font-family:var(--mono);font-size:.85rem;color:var(--accent-ink);
+        max-width:var(--measure)}
+
+  .table-scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:6px;
+                background:var(--surface);max-width:100%}
+  table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:540px}
+  th,td{padding:.55rem .85rem;text-align:left;vertical-align:top;
+        border-bottom:1px solid var(--rule-soft)}
+  thead th{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+           text-transform:uppercase;color:var(--muted);font-weight:500;
+           background:var(--surface-2)}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono{font-family:var(--mono);font-size:.8rem}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+  .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));
+            gap:.7rem;max-width:100%}
+  .stat{border:1px solid var(--rule);border-radius:6px;background:var(--surface);
+        padding:.7rem .85rem;display:grid;gap:.15rem}
+  .stat .v{font-family:var(--mono);font-size:1.22rem;font-weight:600;
+           color:var(--accent-ink);letter-spacing:-.02em}
+  .stat .k{font-size:.76rem;color:var(--muted);line-height:1.3}
+
+  figure{margin:0;display:grid;gap:.6rem;max-width:100%}
+  .frame{background:var(--surface);border:1px solid var(--rule);border-radius:6px;
+         padding:1.1rem;overflow-x:auto}
+  .frame svg{display:block;width:100%;height:auto;min-width:440px}
+  figcaption{font-size:.83rem;color:var(--muted);max-width:var(--measure)}
+
+  footer{border-top:1px solid var(--rule);padding-block:1.8rem 3rem;
+         font-size:.86rem;color:var(--muted);max-width:var(--measure);
+         display:grid;gap:.5rem}
+
+  @media(max-width:760px){
+    .beat{grid-template-columns:1fr;gap:.6rem}
+    .clock{position:static;display:flex;gap:.7rem;align-items:baseline}
+    .beat-body{border-left:none;padding-left:0}
+  }
+  @media print{
+    .clock{position:static}
+    .beat{break-inside:avoid}
+  }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">Smart India Hackathon &middot; Team Radiants &middot; Pitch script</div>
+    <h1>Every flat in India has an address. <em>None of them has a location.</em></h1>
+    <p class="stand">
+      A ten-minute pitch, beat by beat: what appears on screen, the analogy that
+      makes it land, and the exact words worth saying. Rehearse from this until
+      the clock in the left margin feels automatic.
+    </p>
+    <nav class="runsheet">
+      <a href="#hook"><b>0:00</b> Hook</a>
+      <a href="#intro"><b>0:45</b> Who we are</a>
+      <a href="#ps"><b>1:05</b> Problem statement</a>
+      <a href="#problem"><b>1:25</b> The problem</a>
+      <a href="#need"><b>2:55</b> What's required</a>
+      <a href="#solution"><b>3:55</b> Bhoomi3D</a>
+      <a href="#demo"><b>5:55</b> Live demo</a>
+      <a href="#build"><b>8:25</b> How we built it</a>
+      <a href="#extra"><b>9:10</b> Beyond the brief</a>
+      <a href="#close"><b>9:50</b> Close</a>
+      <a href="#delivery">Delivery notes</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap"><main>
+
+<!-- ============================================================ -->
+<section class="beat" id="hook">
+  <div class="clock"><div class="t">0:00</div><div class="d">45 sec</div>
+    <div class="who">Speaker 1</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> a photo of a tall apartment block. Nothing else.</div>
+    <h2>The hook</h2>
+
+    <p>
+      Open cold. No greeting, no "good morning respected judges". Walk to the
+      centre and ask the room a question.
+    </p>
+
+    <div class="say">
+      <div class="lbl">Say</div>
+      <q>Ask any one of us where we live, and we'll say &mdash; flat 502, fifth
+      floor, Ganga Residency. Now ask the government the same question. The land
+      record can only answer with a plot number. It knows the ground. It has
+      never known the floor.</q>
+    </div>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the postman</div>
+      <div class="body">
+        Imagine a sixty-flat building where every single family has the
+        <em>same</em> postal address. The postman arrives with sixty letters and
+        no way to tell them apart. He would have to guess.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> that is not a thought experiment. That is precisely
+        how India's land record sees that building today &mdash; one plot, one
+        entry, sixty families.
+      </div>
+    </div>
+
+    <div class="say small">
+      <div class="lbl">Then land it</div>
+      <q>Our cities grew upward. Our land records stayed flat.</q>
+    </div>
+
+    <div class="note">
+      <h4>Delivery</h4>
+      <p>
+        Pause a full second after "stayed flat". That silence is what turns a
+        statement into a hook. Do not rush into the next slide.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="intro">
+  <div class="clock"><div class="t">0:45</div><div class="d">20 sec</div>
+    <div class="who">Speaker 1</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> team name, five faces, one line</div>
+    <h2>Who we are</h2>
+
+    <p>Short. Twenty seconds. Nobody wins on the introduction, but people lose on a long one.</p>
+
+    <div class="say">
+      <div class="lbl">Say</div>
+      <q>We are <b>Radiants</b>. Five of us. We spent this hackathon building the
+      thing that answers that question &mdash; and it is running on this laptop
+      right now.</q>
+    </div>
+
+    <div class="note">
+      <h4>Delivery</h4>
+      <p>
+        Do not read out every member's name and branch. It costs forty seconds
+        and adds nothing. Names are on the slide; judges can read.
+        Mentioning that <em>it is running right now</em> buys attention for the
+        next eight minutes.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="ps">
+  <div class="clock"><div class="t">1:05</div><div class="d">20 sec</div>
+    <div class="who">Speaker 1</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> problem statement ID, title, ministry</div>
+    <h2>The problem statement</h2>
+
+    <div class="fill">
+      FILL THIS IN before printing &mdash; PS ID, exact official title, ministry
+      or organisation, and category (software / hardware).
+    </div>
+
+    <p>
+      Read the official title once, verbatim. Judges are cross-checking that you
+      are answering the statement you were assigned, and hearing the exact words
+      settles that in five seconds.
+    </p>
+
+    <div class="say">
+      <div class="lbl">Say</div>
+      <q>Problem statement <b>[ID]</b> &mdash; <b>[exact official title]</b>,
+      from <b>[ministry]</b>. In plain language: extend India's land parcel
+      identification system into the third dimension.</q>
+    </div>
+
+    <div class="note ok">
+      <h4>Why the plain-language restatement matters</h4>
+      <p>
+        Official problem statements are written in policy language. Immediately
+        translating it shows you understood the ask rather than memorised it
+        &mdash; and it sets up the next ninety seconds.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="problem">
+  <div class="clock"><div class="t">1:25</div><div class="d">90 sec</div>
+    <div class="who">Speaker 2</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> the vertical column diagram, built up one band at a time</div>
+    <h2>What is actually broken</h2>
+
+    <p>
+      This is the beat where judges either understand the project or spend the
+      rest of the pitch confused. Build the column up on screen, band by band,
+      while you speak.
+    </p>
+
+    <figure>
+      <div class="frame">
+        <svg viewBox="0 0 640 300" role="img" aria-label="Section through an urban plot: air rights, flats, shops at ground level, two basement parking levels, a water main, a storm drain and a metro tunnel, all at the same ground coordinate.">
+          <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+            <rect x="196" y="16" width="200" height="34" fill="var(--accent-wash)"
+                  stroke="var(--accent)" stroke-dasharray="4 3"/>
+            <text x="296" y="37" text-anchor="middle" fill="var(--accent-ink)">air rights</text>
+
+            <rect x="196" y="54" width="200" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="70" text-anchor="middle" fill="var(--ink-soft)">flat 1102 &mdash; owner A</text>
+            <rect x="196" y="78" width="200" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="94" text-anchor="middle" fill="var(--ink-soft)">flat 1002 &mdash; owner B</text>
+            <rect x="196" y="102" width="200" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="118" text-anchor="middle" fill="var(--muted)">&#8942;</text>
+            <rect x="196" y="126" width="200" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="142" text-anchor="middle" fill="var(--ink-soft)">shop 001 &mdash; owner C</text>
+
+            <line x1="52" y1="152" x2="588" y2="152" stroke="var(--ink)" stroke-width="2.5"/>
+            <text x="56" y="166" fill="var(--muted)">ground level &mdash; everything the 2D record can say</text>
+
+            <rect x="196" y="172" width="200" height="22" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="187" text-anchor="middle" fill="var(--ink-soft)">parking B1 &mdash; society</text>
+            <rect x="196" y="194" width="200" height="22" fill="var(--surface-2)" stroke="var(--rule)"/>
+            <text x="296" y="209" text-anchor="middle" fill="var(--ink-soft)">parking B2 &mdash; society</text>
+
+            <rect x="120" y="228" width="340" height="17" rx="2" fill="var(--ok-wash)" stroke="var(--ok)"/>
+            <text x="290" y="240" text-anchor="middle" fill="var(--ok)">water main &mdash; municipal corporation</text>
+
+            <rect x="52" y="255" width="536" height="30" rx="4" fill="var(--risk-wash)" stroke="var(--risk)"/>
+            <text x="320" y="274" text-anchor="middle" fill="var(--risk)">metro tunnel, &minus;15 m &mdash; metro rail corporation</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>
+        One plot. Fourteen legally distinct objects. Four different owners. The
+        record describes the black line.
+      </figcaption>
+    </figure>
+
+    <div class="say">
+      <div class="lbl">Say, while the bands appear</div>
+      <q>Here is one plot in any Indian city. A metro tunnel fifteen metres
+      down. A water main above it. Two levels of parking. Shops at ground.
+      Eleven floors of flats. Air rights on top. Four different authorities,
+      dozens of owners &mdash; and every one of them sits at the <b>same</b>
+      ground coordinate.</q>
+    </div>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the multi-storey car park</div>
+      <div class="body">
+        It is a multi-storey car park where the ticket only says
+        &ldquo;car&nbsp;park&rdquo;. Your car is definitely in the building.
+        Which level? The ticket has no way to tell you.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> the ticket isn't wrong &mdash; it is
+        <em>incomplete by design</em>. It was built for a world with one level.
+        That is our land record.
+      </div>
+    </div>
+
+    <h3>What that costs &mdash; three real consequences</h3>
+    <p>Give one sentence each. Do not elaborate; the demo will show them.</p>
+    <ul>
+      <li><b>Disputes have no geometry.</b> When two neighbours argue over an
+        enclosed balcony, there is no authoritative 3D boundary to settle it
+        against &mdash; so it goes to court, for years.</li>
+      <li><b>Utilities get cut.</b> A builder excavating a basement has no
+        machine-readable record of what runs beneath. Every city has a steady
+        rate of struck water mains and cables.</li>
+      <li><b>Unauthorised floors are invisible.</b> If a builder adds a twelfth
+        floor to an eleven-floor sanction, the file still agrees with itself
+        perfectly. Nothing in the record can contradict it.</li>
+    </ul>
+
+    <div class="say small">
+      <div class="lbl">Close the beat</div>
+      <q>A two-dimensional identifier can name the column. It cannot name
+      anything inside it.</q>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="need">
+  <div class="clock"><div class="t">2:55</div><div class="d">60 sec</div>
+    <div class="who">Speaker 2</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> a railway ticket, then the ULPIN structure beside it</div>
+    <h2>What the statement actually requires</h2>
+
+    <p>
+      Do not list the requirements as bullets off the official PDF. Judges have
+      read it. Show that you understood <em>why</em> each one is there.
+    </p>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the railway berth</div>
+      <div class="body">
+        A train ticket does not just say &ldquo;coach S7&rdquo;. It says coach
+        S7, berth 42, <em>upper</em>. Remove that one word &mdash; upper &mdash;
+        and three passengers have a valid claim to the same space.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> Indian Railways solved the vertical problem decades
+        ago, for a berth. We are being asked to solve it for a building.
+        <b>The plot is the coach. The flat is the berth. The floor is
+        lower, middle or upper.</b>
+      </div>
+    </div>
+
+    <p>Four things the statement asks for, and the one-line reason for each:</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Requirement</th><th>Why it is there</th></tr></thead>
+        <tbody>
+          <tr><td><b>A 3D identifier</b> &mdash; X, Y <em>and</em> Z</td>
+              <td>Without the Z, the flat and the tunnel under it are the same record.</td></tr>
+          <tr><td><b>Automated extraction</b> from drone imagery and LiDAR</td>
+              <td>Hand-digitising every building in India is not a plan; it is a wish.</td></tr>
+          <tr><td><b>Volumetric parcels</b> above and below ground</td>
+              <td>Air rights are traded and tunnels are dug. Both need a legal extent.</td></tr>
+          <tr><td><b>Topology validation</b></td>
+              <td>A register nobody checks accumulates errors until it is worthless.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="say small">
+      <div class="lbl">Bridge into the solution</div>
+      <q>So: give every legally meaningful volume of urban space its own berth
+      number. That is what we built.</q>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="solution">
+  <div class="clock"><div class="t">3:55</div><div class="d">2 min</div>
+    <div class="who">Speaker 3</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> the one-line equation, then the ULPIN broken into fields</div>
+    <h2>Bhoomi3D &mdash; the solution</h2>
+
+    <div class="note ok">
+      <h4>This is the most important beat in the pitch</h4>
+      <p>
+        Everything else can be recovered from. If judges leave this section
+        without understanding <em>how</em> it works, the demo becomes a light
+        show. Slow down here. Teach one idea, completely.
+      </p>
+    </div>
+
+    <h3>Start with the equation</h3>
+    <p>Put this on screen and say it out loud. It is the whole system.</p>
+
+    <figure>
+      <div class="frame">
+        <svg viewBox="0 0 660 160" role="img" aria-label="A 2D polygon plus a floor level plus a floor height becomes a 3D volume with an identifier.">
+          <g font-family="IBM Plex Mono, monospace" font-size="11">
+            <polygon points="26,42 150,42 150,124 26,124" fill="var(--accent-wash)"
+                     stroke="var(--accent)" stroke-width="1.6"/>
+            <text x="88" y="88" text-anchor="middle" fill="var(--ink-soft)">flat 502</text>
+            <text x="88" y="142" text-anchor="middle" fill="var(--muted)" font-size="10">a shape on a plan</text>
+
+            <text x="176" y="88" fill="var(--muted)" font-size="19">+</text>
+            <text x="200" y="80" fill="var(--ink-soft)">floor 5</text>
+            <text x="200" y="98" fill="var(--ink-soft)">height 3.0 m</text>
+
+            <text x="310" y="88" fill="var(--muted)" font-size="19">=</text>
+
+            <g>
+              <polygon points="352,70 470,70 504,48 386,48" fill="var(--accent-wash)"
+                       stroke="var(--accent)" stroke-width="1.6"/>
+              <polygon points="352,70 470,70 470,126 352,126" fill="var(--surface-2)"
+                       stroke="var(--accent)" stroke-width="1.6"/>
+              <polygon points="470,70 504,48 504,104 470,126" fill="var(--surface-2)"
+                       stroke="var(--accent)" stroke-width="1.6" opacity=".7"/>
+            </g>
+            <text x="352" y="146" fill="var(--accent-ink)" font-size="10">a property, with a number</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption>Say it exactly like this, and say it slowly.</figcaption>
+    </figure>
+
+    <div class="say">
+      <div class="lbl">Say</div>
+      <q>A shape on a plan, plus which floor it is on, plus how tall that floor
+      is &mdash; equals a property you can measure, own and point at. Everything
+      else we built sits on top of that one line.</q>
+    </div>
+
+    <h3>Then show the identifier</h3>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the PIN code that ran out of digits</div>
+      <div class="body">
+        A PIN code narrows you to a locality. Add a street, a building, a flat
+        number and you have a delivery address. Each extra field removes
+        ambiguity that the field before it could not.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> our 3D-ULPIN does the same thing, downward and
+        upward. State, district, tehsil, then position on the ground, then
+        <b>which stratum</b> &mdash; above ground, below ground, air rights
+        &mdash; then which level, then which unit.
+      </div>
+    </div>
+
+    <p>Put the number on screen, broken into its parts, and walk it left to right:</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Part</th><th>Means</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">27&nbsp;&middot;&nbsp;025&nbsp;&middot;&nbsp;004</td><td>Maharashtra, Pune, Pune City &mdash; the existing government codes</td></tr>
+          <tr><td class="mono">tek92et7bx</td><td>where it stands, to about a metre &mdash; readable with no database</td></tr>
+          <tr><td class="mono">B04</td><td><b>the new part</b> &mdash; above ground, fourth floor</td></tr>
+          <tr><td class="mono">00DY</td><td>which unit on that floor</td></tr>
+          <tr><td class="mono">5</td><td>a check character</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="say">
+      <div class="lbl">Say &mdash; and this line earns real credibility</div>
+      <q>That last character is a checksum. If a clerk mistypes any single
+      character, or swaps two next to each other, the number is rejected offline
+      &mdash; before it ever reaches a database. We tested that exhaustively:
+      all nine hundred and ten possible single-character errors, every one
+      caught.</q>
+    </div>
+
+    <div class="note">
+      <h4>If you have thirty seconds spare, add this</h4>
+      <p>
+        A ULPIN is minted once and never changes. If a re-survey moves a
+        boundary by three centimetres, the number stays &mdash; otherwise every
+        deed referencing that property would be orphaned. We report the drift as
+        an advisory instead. Judges who work with records will notice you
+        thought about this.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="demo">
+  <div class="clock"><div class="t">5:55</div><div class="d">2.5 min</div>
+    <div class="who">Speaker 4</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> the live application &mdash; switch away from slides entirely</div>
+    <h2>The demo</h2>
+
+    <div class="note warn">
+      <h4>Before you walk in</h4>
+      <p>
+        Dataset built, server started, browser already open on the loaded
+        viewer. Never build live. Check no old server is running &mdash; a
+        leftover process serves a stale register and you will be demoing
+        yesterday's data without knowing.
+      </p>
+    </div>
+
+    <h3>Six moves, in this order</h3>
+    <ol>
+      <li>
+        <b>Open on the register.</b> Top bar reads
+        <span class="num">143 objects &middot; 97 units &middot; 30 storeys &middot; 143 ULPINs &middot; z &minus;17.0 to 68.2 m</span>.
+        <br><em>Say:</em> &ldquo;Nothing about these buildings was given to the
+        software. It was handed a point cloud and worked them out.&rdquo;
+      </li>
+      <li>
+        <b>Click a building, a floor, then a flat.</b> The identifier appears
+        decoded, with area, volume, height range, owner, and a provenance badge.
+        <br><em>Say:</em> &ldquo;That badge says this boundary came from an
+        approved plan &mdash; not from our guess. Every object records where its
+        boundary came from.&rdquo;
+      </li>
+      <li>
+        <b>Column probe &mdash; click the ground.</b> Twenty-nine objects appear
+        in one vertical stack.
+        <br><em>Say:</em> &ldquo;Twenty-nine legal objects at one coordinate. A
+        2D record has one row for this.&rdquo;
+      </li>
+      <li>
+        <b>Validation tab.</b> Walk the three defects. Press
+        <span class="num">show in 3D</span> &mdash; the camera flies to the
+        problem and outlines it in red.
+      </li>
+      <li>
+        <b>2D &rarr; 3D tab.</b> Upload a plan file, show the floor drawing,
+        press build. A new register in under a second.
+        <br><em>Say:</em> &ldquo;This is the path a municipal office can run
+        today, with plans they already hold. No drone required.&rdquo;
+      </li>
+      <li>
+        <b>Re-run AI pipeline.</b> Eight stages execute live and stream back in
+        about seventeen seconds. <b>Always end here.</b>
+      </li>
+    </ol>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the X-ray and the case file</div>
+      <div class="body">
+        A doctor does not choose between your case file and your X-ray. The file
+        says what should be there. The X-ray shows what is. When they disagree,
+        that disagreement <em>is</em> the diagnosis.
+      </div>
+      <div class="tie">
+        <b>Use this when you show the unauthorised storey:</b> the approved plan
+        sanctions eleven floors. The drone scan measures twelve. The paper record
+        agreed with itself perfectly &mdash; only an independent measurement
+        could catch it. That is roughly <b>2,700 cubic metres</b> of
+        unregistered construction, and we found it in seconds.
+      </div>
+    </div>
+
+    <div class="note ok">
+      <h4>The strongest single moment</h4>
+      <p>
+        Pressing <b>Re-run AI pipeline</b> and letting eight stages tick past
+        live proves it is a working system rather than a rendered mock-up.
+        Nothing else you can do in ten minutes is as convincing. Save it for
+        last and do not talk over it.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="build">
+  <div class="clock"><div class="t">8:25</div><div class="d">45 sec</div>
+    <div class="who">Speaker 5</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> the eight-stage pipeline, then the accuracy table</div>
+    <h2>How it is built</h2>
+
+    <p>Fast. Judges do not want an architecture lecture; they want proof it is real.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Layer</th><th>Built with</th></tr></thead>
+        <tbody>
+          <tr><td>Backend &amp; API</td><td class="mono">Python 3.12, FastAPI &mdash; 15 REST endpoints, auto-documented</td></tr>
+          <tr><td>Geometry</td><td class="mono">Shapely, NumPy &mdash; exact volumes and clearances</td></tr>
+          <tr><td>AI / ML</td><td class="mono">SciPy &mdash; SMRF, DBSCAN, RANSAC, PCA features, autocorrelation</td></tr>
+          <tr><td>Survey formats</td><td class="mono">laspy, rasterio &mdash; real LAS/LAZ and GeoTIFF</td></tr>
+          <tr><td>3D viewer</td><td class="mono">hand-written WebGL2 &mdash; no library, works offline</td></tr>
+          <tr><td>Quality</td><td class="mono">pytest &mdash; 158 tests, ~30 seconds</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the weighing scale</div>
+      <div class="body">
+        A shopkeeper's scale is worth nothing without its calibration seal. It
+        is not that the scale is dishonest &mdash; it is that an uncalibrated
+        number is not evidence.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> so our pipeline scores itself on every single run,
+        against known ground truth. It states its own accuracy rather than
+        asking to be believed.
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><span class="v">1.00</span><span class="k">Building detection F1</span></div>
+      <div class="stat"><span class="v">0.984</span><span class="k">Mean footprint IoU</span></div>
+      <div class="stat"><span class="v">5.5 cm</span><span class="k">Height RMSE</span></div>
+      <div class="stat"><span class="v">100%</span><span class="k">Floor-count accuracy</span></div>
+      <div class="stat"><span class="v">0.991</span><span class="k">Ground-filter kappa</span></div>
+      <div class="stat"><span class="v">17 s</span><span class="k">Per city block</span></div>
+    </div>
+
+    <div class="say small">
+      <div class="lbl">Say</div>
+      <q>Building detection: F1 of one point zero, mean IoU of nought point nine
+      eight four, height error of five and a half centimetres. Those are
+      measured against known truth, and they are re-measured every time the
+      pipeline runs.</q>
+    </div>
+
+    <div class="note">
+      <h4>If asked "where is the deep learning?"</h4>
+      <p>
+        Answer confidently, do not apologise: <em>"We chose interpretable models
+        because the output has legal consequences. A surveyor has to be able to
+        audit why a boundary was drawn where it was &mdash; 'the network said
+        so' is not admissible. We built the interface a trained model plugs
+        into, and it is documented."</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="extra">
+  <div class="clock"><div class="t">9:10</div><div class="d">40 sec</div>
+    <div class="who">Speaker 5</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> six tiles, "asked for" vs "we added"</div>
+    <h2>What we added beyond the brief</h2>
+
+    <p>
+      This beat separates a completed assignment from a product. Name them fast
+      &mdash; one line each.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>What we added</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><b>2D plan upload path</b></td>
+            <td>Municipal offices hold approved plans, not LiDAR. This is the path they can run today &mdash; no drone, no GPU, under a second.</td>
+          </tr>
+          <tr>
+            <td><b>Self-scoring pipeline</b></td>
+            <td>Every stage reports measured accuracy on every run. Nothing else in the field does this.</td>
+          </tr>
+          <tr>
+            <td><b>Provenance on every object</b></td>
+            <td>Surveyed, approved, or machine-inferred. A record with legal weight must never present a guess as a measurement.</td>
+          </tr>
+          <tr>
+            <td><b>Two-sensor cross-check</b></td>
+            <td>Imagery and LiDAR extracted independently, then matched. Two sensors agreeing is evidence; one repeating itself is not.</td>
+          </tr>
+          <tr>
+            <td><b>Unauthorised-construction detection</b></td>
+            <td>Not in the brief. Falls out of comparing as-built against sanctioned &mdash; and it is what a municipal commissioner will care about most.</td>
+          </tr>
+          <tr>
+            <td><b>Offline by design</b></td>
+            <td>No CDN, no API keys, no internet at runtime. It runs in a tehsil office with no connectivity.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; spell-check</div>
+      <div class="body">
+        Nobody asked for spell-check. It was added because a document full of
+        errors nobody catches is worse than no document &mdash; and now writing
+        without it feels reckless.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> our validator is spell-check for land records. Ten
+        rules, running over the whole register, catching overlapping ownership,
+        unclaimed space and clearance breaches before they become litigation.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="close">
+  <div class="clock"><div class="t">9:50</div><div class="d">40 sec</div>
+    <div class="who">Speaker 1</div></div>
+  <div class="beat-body">
+    <div class="slide"><b>On screen:</b> the column diagram again, now with every band labelled with its own ULPIN</div>
+    <h2>The close</h2>
+
+    <p>
+      Return to the opening image. Same picture, transformed &mdash; that visual
+      rhyme is what makes a pitch feel finished rather than stopped.
+    </p>
+
+    <div class="analogy">
+      <div class="lbl">Analogy &mdash; the Digital India pattern</div>
+      <div class="body">
+        Aadhaar gave every person a verifiable identity. UPI gave every rupee a
+        traceable path. Each one worked by giving an identity to something that
+        previously had none.
+      </div>
+      <div class="tie">
+        <b>The tie-back:</b> we are proposing the same for every cubic metre of
+        urban space.
+      </div>
+    </div>
+
+    <div class="say">
+      <div class="lbl">Say, then stop</div>
+      <q>We started with a building where sixty families share one address. This
+      is that same building in our system &mdash; sixty families, sixty
+      identifiers, each one a volume you can measure and own. Our cities grew
+      upward. It is time the record did too. We are Radiants. Thank you.</q>
+    </div>
+
+    <div class="note">
+      <h4>Delivery</h4>
+      <p>
+        Stop talking after "thank you". Do not add "any questions?" &mdash; the
+        judges will ask. Trailing off weakens the last thing they hear.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<section class="beat" id="delivery">
+  <div class="clock"><div class="t">&mdash;</div><div class="d">prep</div>
+    <div class="who">All</div></div>
+  <div class="beat-body">
+    <h2>Delivery notes</h2>
+
+    <h3>The five analogies, in order</h3>
+    <p>
+      If you remember nothing else, remember these. Each one is doing a specific
+      job, and they are sequenced so each builds on the last.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Beat</th><th>Analogy</th><th>The job it does</th></tr></thead>
+        <tbody>
+          <tr><td>Hook</td><td><b>The postman</b> &mdash; sixty flats, one address</td><td>Makes the problem personal in ten seconds</td></tr>
+          <tr><td>Problem</td><td><b>The car park ticket</b> &mdash; no level printed</td><td>Shows the record isn't wrong, it's incomplete</td></tr>
+          <tr><td>Requirement</td><td><b>The railway berth</b> &mdash; coach, berth, upper</td><td>Explains the Z axis with zero jargon</td></tr>
+          <tr><td>Demo</td><td><b>X-ray and case file</b></td><td>Explains why scan and plan must be compared</td></tr>
+          <tr><td>Build</td><td><b>The weighing scale seal</b></td><td>Justifies why we measure our own accuracy</td></tr>
+          <tr><td>Extras</td><td><b>Spell-check</b></td><td>Makes the validator instantly graspable</td></tr>
+          <tr><td>Close</td><td><b>Aadhaar and UPI</b></td><td>Places the work in a pattern judges already believe in</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Rules for the room</h3>
+    <ul>
+      <li><b>One speaker per beat, no interruptions.</b> Handovers should be
+        silent &mdash; walk, don't announce.</li>
+      <li><b>Never read the slide aloud.</b> The slide is the evidence; you are
+        the argument.</li>
+      <li><b>Numbers slowly, adjectives never.</b> "Nought point nine eight
+        four" lands. "Highly accurate" does not.</li>
+      <li><b>If a demo step fails, keep moving.</b> Say what it would have
+        shown, continue, come back if there's time. Do not debug on stage.</li>
+      <li><b>Everyone answers questions.</b> Judges often aim at whoever hasn't
+        spoken. "That's his part" undoes everything already said.</li>
+    </ul>
+
+    <h3>Timing discipline</h3>
+    <p>
+      Ten minutes is the target; the demo is the compressible part, not the
+      explanation. If you are running late at 5:55, cut demo steps 4 and 5 and
+      keep 1, 2, 3 and 6. Never cut the solution beat at 3:55 &mdash; a judge who
+      does not understand the idea cannot be impressed by the demo.
+    </p>
+
+    <div class="note warn">
+      <h4>The three questions most likely to come</h4>
+      <p>
+        <b>1. &ldquo;Your data is synthetic.&rdquo;</b> Lead with it before they
+        raise it: synthetic <em>so that</em> ground truth exists &mdash;
+        otherwise accuracy is an opinion. The pipeline reads real LAS files
+        today.<br>
+        <b>2. &ldquo;Where is the AI?&rdquo;</b> Name the algorithms, cite ISPRS,
+        give the legal-auditability reason.<br>
+        <b>3. &ldquo;Have you spoken to a land-records department?&rdquo;</b>
+        Do not bluff. Say what you grounded the design in &mdash; LGD codes,
+        existing ULPIN structure, DILRMP, SVAMITVA &mdash; and state the pilot
+        as the next step.
+      </p>
+    </div>
+
+    <div class="fill">
+      BEFORE PRINTING: fill in the PS ID and official title (beat 1:05), confirm
+      speaker names against the beats, and rehearse the full run three times
+      with a visible clock.
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>
+    Companion documents: the <b>team brief</b> for the full judge Q&amp;A and
+    risk register, <b>docs/how-it-works.html</b> for the 2D&nbsp;&rarr;&nbsp;3D
+    walkthrough, <code>README.md</code> for the measured accuracy figures.
+  </p>
+  <p>
+    Every number quoted in this script is regenerated by
+    <code>scripts/build_demo.py</code> and asserted in the test suite. If a
+    figure changes after a code change, this script is out of date &mdash; not
+    the software.
+  </p>
+</footer>
+
+</main></div>

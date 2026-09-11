@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bhoomi3D — 3D Cadastre &amp; ULPIN</title>
+<link rel="stylesheet" href="css/app.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>🏙️</text></svg>">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">▚</span>
+    <div>
+      <div class="title">Bhoomi<span>3D</span></div>
+      <div class="subtitle">Volumetric cadastre &amp; 3D-ULPIN</div>
+    </div>
+  </div>
+
+  <div class="searchbox">
+    <input id="search" type="search" autocomplete="off" spellcheck="false"
+           placeholder="Search a ULPIN, flat, owner or object id…">
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
+  <div class="site-meta">
+    <div id="siteName" class="site-name">—</div>
+    <div id="siteStats" class="site-stats"></div>
+  </div>
+</header>
+
+<main class="layout">
+
+  <aside class="left">
+    <section class="ctl">
+      <h4>Layers</h4>
+      <label><input type="checkbox" id="layer-terrain" checked> Terrain (DEM)</label>
+      <label><input type="checkbox" id="layer-parcels" checked> Surface parcels</label>
+      <label><input type="checkbox" id="layer-buildings" checked> Building envelopes</label>
+      <label><input type="checkbox" id="layer-storeys"> Storey slabs</label>
+      <label><input type="checkbox" id="layer-units" checked> Units (flats, shops, parking)</label>
+      <label><input type="checkbox" id="layer-infra" checked> Underground corridors</label>
+      <label><input type="checkbox" id="layer-air"> Air rights</label>
+    </section>
+
+    <section class="ctl">
+      <h4>Vertical navigation</h4>
+      <div class="level-row">
+        <button id="levelDown" title="Go down one level">▼</button>
+        <span id="levelLabel" class="level-label">all levels</span>
+        <button id="levelUp" title="Go up one level">▲</button>
+      </div>
+      <button id="levelAll" class="wide">Show all levels</button>
+
+      <label class="slider">Exploded view
+        <input type="range" id="explode" min="0" max="6" step="0.1" value="0">
+      </label>
+      <label class="slider">Ground opacity
+        <input type="range" id="groundAlpha" min="0.05" max="1" step="0.05" value="1">
+      </label>
+    </section>
+
+    <section class="ctl">
+      <h4>Tools</h4>
+      <button id="viewMode" class="wide toggle">3D view</button>
+      <button id="probeMode" class="wide toggle">Column probe</button>
+      <button id="resetView" class="wide">Reset camera</button>
+      <button id="runPipeline" class="wide primary">Re-run AI pipeline</button>
+      <div id="pipelineLog" class="plog"></div>
+    </section>
+
+    <section class="ctl legend">
+      <h4>Legend</h4>
+      <div><i style="background:#e0bc75"></i> Residential unit</div>
+      <div><i style="background:#85b3e0"></i> Commercial / shop</div>
+      <div><i style="background:#8c919e"></i> Parking</div>
+      <div><i style="background:#b374bf"></i> Unallocated volume</div>
+      <div><i style="background:#ed5459"></i> Metro tunnel</div>
+      <div><i style="background:#4da0eb"></i> Water main</div>
+      <div><i style="background:#8c73d9"></i> Storm drain</div>
+      <div><i style="background:#5c8c61"></i> Surface parcel</div>
+      <div><i style="background:#6bc7e6"></i> Air rights</div>
+    </section>
+  </aside>
+
+  <div class="viewport">
+    <canvas id="gl"></canvas>
+    <canvas id="locateOverlay" class="locate-overlay"></canvas>
+    <div id="hoverLabel" class="hover-label"></div>
+    <div class="hint">
+      drag to orbit · shift-drag or right-drag to pan · wheel to zoom · click to select
+    </div>
+    <div id="status" class="status">Starting…</div>
+  </div>
+
+  <aside class="right">
+    <nav class="tabs">
+      <button class="tab active" data-tab="inspector">Inspector</button>
+      <button class="tab" data-tab="validation">Validation</button>
+      <button class="tab" data-tab="metrics">Accuracy</button>
+      <button class="tab" data-tab="tree">Register</button>
+      <button class="tab" data-tab="column">Column</button>
+      <button class="tab" data-tab="plan">2D&nbsp;&rarr;&nbsp;3D</button>
+      <button class="tab" data-tab="locate">Locate</button>
+    </nav>
+    <div class="panel active" data-panel="inspector"><div id="inspector"></div></div>
+    <div class="panel" data-panel="validation"><div id="validationPanel"></div></div>
+    <div class="panel" data-panel="metrics"><div id="metricsPanel"></div></div>
+    <div class="panel" data-panel="tree"><div id="treePanel"></div></div>
+    <div class="panel" data-panel="locate">
+      <div id="locatePanel">
+        <h3>Locate a ULPIN from orbit</h3>
+        <p class="muted">
+          Paste an identifier and watch it resolve &mdash; globe, administrative
+          codes, then ten geohash subdivisions down to the flat itself. Every
+          stage of the zoom is one field of the number, decoded live. No
+          database lookup until the very last step.
+        </p>
+
+        <label class="locate-label" for="locateInput">3D-ULPIN</label>
+        <input id="locateInput" class="locate-input" type="text" spellcheck="false"
+               autocomplete="off" placeholder="27-025-004-tek92et7bx-B04-00DY-5">
+        <label class="locate-label" for="locateProvider">Basemap</label>
+        <select id="locateProvider" class="locate-select">
+          <option value="osm">OpenStreetMap &mdash; street map</option>
+          <option value="offline">Offline &mdash; bundled borders only</option>
+        </select>
+        <div class="tile-hint" id="providerHint">Needs internet. Offline always works.</div>
+        <button id="locateRun" class="wide primary">Locate</button>
+        <div id="locateError" class="locate-error"></div>
+
+        <h4 class="locate-sub">Quick pick</h4>
+        <div id="locateChips" class="locate-chips"></div>
+
+        <div id="locateStages" class="locate-stages">
+          <div class="lst" data-stage="globe"><b>Globe</b><span>position from the number</span></div>
+          <div class="lst" data-stage="admin"><b>Admin codes</b><span>state &middot; district &middot; tehsil</span></div>
+          <div class="lst" data-stage="geohash"><b>Geohash</b><span>10 subdivisions</span></div>
+          <div class="lst" data-stage="plan"><b>Site</b><span>2D plan view</span></div>
+          <div class="lst" data-stage="rise"><b>Rise</b><span>plan becomes solids</span></div>
+          <div class="lst" data-stage="target"><b>Unit</b><span>the flat itself</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel" data-panel="plan">
+      <div id="planPanel">
+        <h3>Turn a 2D plan into a 3D register</h3>
+        <p class="muted">
+          Upload an approved building plan as coordinates and every unit on
+          every floor becomes a 3D property volume with its own ULPIN. No drone
+          survey needed &mdash; this is the path a municipal office can run today.
+        </p>
+
+        <div class="plan-steps">
+          <div class="plan-step">
+            <span class="ps-n">1</span>
+            <div>
+              <b>Start from a sample</b>
+              <p class="muted">Download one, open it in any text editor, change the
+              corner coordinates, owners and floor heights to match your building.</p>
+              <div class="plan-btns">
+                <button id="dlSimple" class="small">Simple plot &middot; 4 storeys</button>
+                <button id="dlSociety" class="small">Housing society &middot; 13 storeys</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="plan-step">
+            <span class="ps-n">2</span>
+            <div>
+              <b>Check the drawing</b>
+              <p class="muted">Pick your edited file. We draw each floor back so you
+              can see the shapes are right before building anything.</p>
+              <label class="file-btn">
+                <input type="file" id="planFile" accept=".json,application/json">
+                <span>Choose a plan file&hellip;</span>
+              </label>
+              <div id="planName" class="plan-file-name"></div>
+            </div>
+          </div>
+
+          <div class="plan-step">
+            <span class="ps-n">3</span>
+            <div>
+              <b>Build the 3D register</b>
+              <p class="muted">Every unit becomes a solid, gets an identifier, and
+              the whole thing is validated for overlaps and clearances.</p>
+              <button id="planBuild" class="wide primary" disabled>Build 3D register</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="planFeedback"></div>
+        <div id="planPreview"></div>
+      </div>
+    </div>
+    <div class="panel" data-panel="column"><div id="columnPanel">
+      <h3>Vertical column</h3>
+      <p class="muted">Turn on <b>Column probe</b> and click anywhere on the site
+      to list everything registered in that vertical column — the flat above,
+      the parking below, the parcel itself, the air rights, and any tunnel or
+      main running underneath.</p>
+    </div></div>
+  </aside>
+
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

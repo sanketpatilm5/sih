@@ -1,0 +1,370 @@
+{
+  "site": {
+    "name": "Ganga Residency - Shivajinagar",
+    "origin": {
+      "lat": 18.52043,
+      "lon": 73.856744
+    },
+    "jurisdiction": {
+      "state": "27",
+      "district": "025",
+      "tehsil": "004",
+      "state_name": "Maharashtra",
+      "district_name": "Pune",
+      "tehsil_name": "Pune City"
+    }
+  },
+  "parcels": [
+    {
+      "id": "P-01",
+      "owner": "Ganga Co-op Housing Society",
+      "survey_no": "SN-114/3",
+      "land_use": "residential",
+      "boundary": [
+        [
+          0,
+          0
+        ],
+        [
+          58,
+          0
+        ],
+        [
+          58,
+          40
+        ],
+        [
+          0,
+          40
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "B-01",
+      "name": "Ganga Residency",
+      "parcel": "P-01",
+      "owner": "Ganga Co-op Housing Society",
+      "ground_level": 0.0,
+      "floors": [
+        {
+          "level": -2,
+          "height": 3.0,
+          "use": "parking",
+          "units": [
+            {
+              "name": "PARK-B2",
+              "kind": "parking",
+              "owner": "Society common",
+              "boundary": [
+                [
+                  6,
+                  6
+                ],
+                [
+                  52,
+                  6
+                ],
+                [
+                  52,
+                  34
+                ],
+                [
+                  6,
+                  34
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "level": -1,
+          "height": 3.0,
+          "use": "parking",
+          "units": [
+            {
+              "name": "PARK-B1",
+              "kind": "parking",
+              "owner": "Society common",
+              "boundary": [
+                [
+                  6,
+                  6
+                ],
+                [
+                  52,
+                  6
+                ],
+                [
+                  52,
+                  34
+                ],
+                [
+                  6,
+                  34
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "height": 3.8,
+          "use": "commercial",
+          "units": [
+            {
+              "name": "SHOP-01",
+              "kind": "shop",
+              "owner": "Deccan Traders",
+              "boundary": [
+                [
+                  6,
+                  6
+                ],
+                [
+                  20,
+                  6
+                ],
+                [
+                  20,
+                  34
+                ],
+                [
+                  6,
+                  34
+                ]
+              ]
+            },
+            {
+              "name": "SHOP-02",
+              "kind": "shop",
+              "owner": "Sai Electronics",
+              "boundary": [
+                [
+                  22,
+                  6
+                ],
+                [
+                  36,
+                  6
+                ],
+                [
+                  36,
+                  34
+                ],
+                [
+                  22,
+                  34
+                ]
+              ]
+            },
+            {
+              "name": "SHOP-03",
+              "kind": "shop",
+              "owner": "Pune Bakers",
+              "boundary": [
+                [
+                  38,
+                  6
+                ],
+                [
+                  52,
+                  6
+                ],
+                [
+                  52,
+                  34
+                ],
+                [
+                  38,
+                  34
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "level": 1,
+          "repeat_to": 10,
+          "height": 3.05,
+          "use": "residential",
+          "units": [
+            {
+              "name": "FLAT-{n}01",
+              "owner": "Resident {n}01",
+              "boundary": [
+                [
+                  6,
+                  6
+                ],
+                [
+                  20,
+                  6
+                ],
+                [
+                  20,
+                  19
+                ],
+                [
+                  6,
+                  19
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}02",
+              "owner": "Resident {n}02",
+              "boundary": [
+                [
+                  22,
+                  6
+                ],
+                [
+                  36,
+                  6
+                ],
+                [
+                  36,
+                  19
+                ],
+                [
+                  22,
+                  19
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}03",
+              "owner": "Resident {n}03",
+              "boundary": [
+                [
+                  38,
+                  6
+                ],
+                [
+                  52,
+                  6
+                ],
+                [
+                  52,
+                  19
+                ],
+                [
+                  38,
+                  19
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}04",
+              "owner": "Resident {n}04",
+              "boundary": [
+                [
+                  6,
+                  21
+                ],
+                [
+                  20,
+                  21
+                ],
+                [
+                  20,
+                  34
+                ],
+                [
+                  6,
+                  34
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}05",
+              "owner": "Resident {n}05",
+              "boundary": [
+                [
+                  22,
+                  21
+                ],
+                [
+                  36,
+                  21
+                ],
+                [
+                  36,
+                  34
+                ],
+                [
+                  22,
+                  34
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}06",
+              "owner": "Resident {n}06",
+              "boundary": [
+                [
+                  38,
+                  21
+                ],
+                [
+                  52,
+                  21
+                ],
+                [
+                  52,
+                  34
+                ],
+                [
+                  38,
+                  34
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "INF-METRO-01",
+      "name": "Metro Line 3 - up tunnel",
+      "kind": "metro",
+      "owner": "Maharashtra Metro Rail Corporation",
+      "alignment": [
+        [
+          -10,
+          20
+        ],
+        [
+          70,
+          24
+        ]
+      ],
+      "width": 6.4,
+      "height": 6.4,
+      "depth": 9.0
+    },
+    {
+      "id": "INF-WATER-01",
+      "name": "600 mm water main",
+      "kind": "water",
+      "owner": "Pune Municipal Corporation - Water Supply",
+      "alignment": [
+        [
+          -6,
+          37
+        ],
+        [
+          64,
+          37
+        ]
+      ],
+      "width": 1.4,
+      "height": 1.4,
+      "depth": 2.0
+    }
+  ]
+}

@@ -1,0 +1,1461 @@
+<title>Bhoomi3D Team Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600;700&display=swap">
+
+<style>
+  /* ---------- tokens: complete light palette on bare :root ---------- */
+  :root {
+    --bg:        #F1F3F0;
+    --surface:   #FAFBF9;
+    --surface-2: #E8ECE7;
+    --ink:       #191E22;
+    --ink-soft:  #3B454A;
+    --muted:     #5F6B66;
+    --rule:      #D2D9D0;
+    --rule-soft: #E2E7E0;
+
+    --accent:      #9C6412;
+    --accent-ink:  #7A4E0B;
+    --accent-wash: #F3E7D2;
+
+    --risk:      #9E3129;
+    --risk-wash: #F6E3E1;
+    --warn:      #8A6108;
+    --warn-wash: #F6ECD6;
+    --ok:        #2C6247;
+    --ok-wash:   #DFEDE5;
+
+    --shadow: 0 1px 2px rgba(25,30,34,.05), 0 8px 24px -12px rgba(25,30,34,.15);
+
+    --measure: 68ch;
+    --sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #12161A;
+      --surface:   #191E23;
+      --surface-2: #222A30;
+      --ink:       #E6EAE6;
+      --ink-soft:  #C2CAC6;
+      --muted:     #8D9A94;
+      --rule:      #2C353B;
+      --rule-soft: #232B31;
+
+      --accent:      #E0A33D;
+      --accent-ink:  #F0BE68;
+      --accent-wash: #33280F;
+
+      --risk:      #E67A72;
+      --risk-wash: #331C1A;
+      --warn:      #DFA83A;
+      --warn-wash: #302512;
+      --ok:        #6FBE93;
+      --ok-wash:   #172C22;
+
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #12161A;
+    --surface:   #191E23;
+    --surface-2: #222A30;
+    --ink:       #E6EAE6;
+    --ink-soft:  #C2CAC6;
+    --muted:     #8D9A94;
+    --rule:      #2C353B;
+    --rule-soft: #232B31;
+
+    --accent:      #E0A33D;
+    --accent-ink:  #F0BE68;
+    --accent-wash: #33280F;
+
+    --risk:      #E67A72;
+    --risk-wash: #331C1A;
+    --warn:      #DFA83A;
+    --warn-wash: #302512;
+    --ok:        #6FBE93;
+    --ok-wash:   #172C22;
+
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+
+  /* ---------- base ---------- */
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent-ink); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--serif); text-wrap: balance; margin: 0; }
+  p { margin: 0; }
+  ul, ol { margin: 0; padding-left: 1.25rem; }
+  li { margin-block: .3rem; }
+  strong { font-weight: 600; }
+
+  code, kbd, .mono { font-family: var(--mono); font-size: .89em; }
+  code { background: var(--surface-2); padding: .1em .34em; border-radius: 3px; }
+
+  /* ---------- page frame ---------- */
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 210px minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    background: var(--surface);
+    padding-block: clamp(2.2rem, 5vw, 3.4rem) clamp(1.8rem, 4vw, 2.6rem);
+  }
+  .masthead-inner { display: grid; gap: 1.4rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .masthead h1 {
+    font-size: clamp(2.1rem, 5.4vw, 3.3rem);
+    font-weight: 700;
+    line-height: 1.06;
+    letter-spacing: -.02em;
+  }
+  .masthead h1 em { font-style: normal; color: var(--accent-ink); }
+  .standfirst {
+    max-width: var(--measure);
+    font-size: clamp(1.02rem, 1.6vw, 1.14rem);
+    color: var(--ink-soft);
+  }
+  .masthead-meta {
+    display: flex; flex-wrap: wrap; gap: .5rem 1.5rem;
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    border-top: 1px solid var(--rule-soft); padding-top: 1rem; margin-top: .4rem;
+  }
+  .masthead-meta span { display: inline-flex; gap: .4rem; }
+  .masthead-meta b { font-weight: 500; color: var(--ink-soft); }
+
+  /* ---------- section rail ---------- */
+  .rail { position: sticky; top: 0; padding-block: 2.5rem; }
+  .rail-title {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--muted);
+    padding-bottom: .7rem; border-bottom: 1px solid var(--rule);
+  }
+  .rail ol { list-style: none; padding: 0; margin: .7rem 0 0; }
+  .rail li { margin: 0; }
+  .rail a {
+    display: grid; grid-template-columns: 1.7rem 1fr; gap: .2rem;
+    padding: .34rem 0; font-size: .84rem; line-height: 1.35;
+    color: var(--muted); text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .rail a:hover { color: var(--accent-ink); }
+  .rail a .n { font-family: var(--mono); font-size: .74rem; opacity: .75; }
+
+  /* ---------- content flow ---------- */
+  .content { padding-block: 2.5rem 5rem; display: grid; gap: 4rem; }
+  section { display: grid; gap: 1.15rem; scroll-margin-top: 1.5rem; }
+  section > p, section > ul, section > ol { max-width: var(--measure); }
+
+  .sec-head { display: grid; gap: .45rem; padding-bottom: .9rem; border-bottom: 2px solid var(--ink); }
+  .sec-num {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .14em;
+    color: var(--accent-ink); text-transform: uppercase;
+  }
+  .sec-head h2 { font-size: clamp(1.5rem, 3vw, 1.95rem); font-weight: 600; letter-spacing: -.015em; }
+  .sec-head .lede { font-size: 1rem; color: var(--muted); max-width: var(--measure); }
+
+  h3 {
+    font-size: 1.14rem; font-weight: 600; margin-top: 1.1rem;
+    letter-spacing: -.01em;
+  }
+  h4 {
+    font-family: var(--sans); font-size: .78rem; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ---------- callouts ---------- */
+  .note {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-wash);
+    padding: .95rem 1.15rem;
+    border-radius: 0 5px 5px 0;
+    display: grid; gap: .4rem;
+    max-width: var(--measure);
+  }
+  .note h4 { color: var(--accent-ink); }
+  .note.risk { border-left-color: var(--risk); background: var(--risk-wash); }
+  .note.risk h4 { color: var(--risk); }
+  .note.ok { border-left-color: var(--ok); background: var(--ok-wash); }
+  .note.ok h4 { color: var(--ok); }
+
+  /* ---------- tables ---------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 620px; }
+  caption {
+    caption-side: bottom; text-align: left; padding: .7rem .95rem;
+    font-size: .8rem; color: var(--muted); border-top: 1px solid var(--rule-soft);
+  }
+  th, td { padding: .62rem .95rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule-soft); }
+  thead th {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+    background: var(--surface-2); border-bottom: 1px solid var(--rule);
+    position: sticky; top: 0;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  td.mono { font-family: var(--mono); font-size: .82rem; }
+
+  .pill {
+    display: inline-block; font-family: var(--mono); font-size: .68rem;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: .16rem .5rem; border-radius: 99px; white-space: nowrap;
+    border: 1px solid currentColor;
+  }
+  .pill.req  { color: var(--risk); }
+  .pill.opt  { color: var(--muted); }
+  .pill.good { color: var(--ok); }
+  .pill.warn { color: var(--warn); }
+
+  /* ---------- figure: the vertical column ---------- */
+  figure { margin: 0; display: grid; gap: .7rem; }
+  figcaption { font-size: .84rem; color: var(--muted); max-width: var(--measure); }
+  .fig-frame {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 6px; padding: 1.4rem; overflow-x: auto;
+  }
+  .fig-frame svg { display: block; width: 100%; height: auto; min-width: 480px; }
+
+  /* ---------- stage list ---------- */
+  .stages { display: grid; gap: 0; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+  .stage {
+    display: grid; grid-template-columns: 2.4rem minmax(0,1fr) auto;
+    gap: 0 1rem; align-items: baseline;
+    padding: .85rem 1.1rem; background: var(--surface);
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .stage:last-child { border-bottom: none; }
+  .stage .sn { font-family: var(--mono); font-size: .78rem; color: var(--accent-ink); }
+  .stage .sbody { display: grid; gap: .25rem; }
+  .stage .sname { font-weight: 600; font-size: .96rem; }
+  .stage .swhy { font-size: .87rem; color: var(--muted); }
+  .stage .stime {
+    font-family: var(--mono); font-size: .78rem; color: var(--muted);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  /* ---------- code ---------- */
+  pre {
+    margin: 0; background: var(--surface-2); border: 1px solid var(--rule);
+    border-radius: 6px; padding: .9rem 1.1rem; overflow-x: auto;
+    font-family: var(--mono); font-size: .84rem; line-height: 1.6;
+    color: var(--ink-soft);
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+  .cmd { color: var(--accent-ink); }
+  .cmt { color: var(--muted); }
+
+  /* ---------- Q&A ---------- */
+  .qa { display: grid; gap: .6rem; }
+  details {
+    border: 1px solid var(--rule); border-radius: 6px;
+    background: var(--surface); overflow: hidden;
+  }
+  details[open] { box-shadow: var(--shadow); }
+  summary {
+    cursor: pointer; list-style: none; padding: .85rem 1.1rem;
+    font-weight: 600; font-size: .97rem;
+    display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: "+"; font-family: var(--mono); color: var(--accent-ink);
+    font-size: 1.1rem; line-height: 1;
+  }
+  details[open] summary::after { content: "\2212"; }
+  details[open] summary { border-bottom: 1px solid var(--rule-soft); }
+  .answer { padding: .95rem 1.1rem 1.15rem; display: grid; gap: .75rem; font-size: .93rem; }
+  .answer p, .answer ul { max-width: 64ch; }
+  .say {
+    font-family: var(--mono); font-size: .8rem; color: var(--muted);
+    border-left: 2px solid var(--rule); padding-left: .8rem;
+  }
+  .say b { color: var(--ink-soft); font-weight: 500; }
+
+  /* ---------- risk cards ---------- */
+  .risks { display: grid; gap: 1rem; }
+  .risk-card {
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--surface);
+    display: grid; gap: 0; overflow: hidden;
+  }
+  .risk-head {
+    display: flex; flex-wrap: wrap; gap: .5rem .8rem; align-items: center;
+    padding: .75rem 1.05rem; background: var(--surface-2);
+    border-bottom: 1px solid var(--rule);
+  }
+  .risk-head .rt { font-weight: 600; font-size: .97rem; flex: 1 1 16rem; }
+  .risk-body { padding: .95rem 1.05rem; display: grid; gap: .7rem; font-size: .92rem; }
+  .risk-body .lbl {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: .2rem;
+  }
+
+  /* ---------- key numbers ---------- */
+  .figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; }
+  .fig-card {
+    border: 1px solid var(--rule); border-radius: 6px; background: var(--surface);
+    padding: .85rem .95rem; display: grid; gap: .18rem;
+  }
+  .fig-card .v {
+    font-family: var(--mono); font-size: 1.3rem; font-weight: 600;
+    color: var(--accent-ink); font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+  }
+  .fig-card .k { font-size: .8rem; color: var(--muted); line-height: 1.35; }
+
+  /* ---------- footer ---------- */
+  .foot {
+    border-top: 1px solid var(--rule); margin-top: 1rem; padding-block: 2rem 3rem;
+    font-size: .85rem; color: var(--muted); max-width: var(--measure);
+    display: grid; gap: .5rem;
+  }
+
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; gap: 1rem; }
+    .rail { position: static; padding-block: 1.5rem 0; }
+    .rail ol { display: flex; flex-wrap: wrap; gap: .2rem .9rem; }
+    .rail a { padding: .2rem 0; }
+    .content { padding-block: 1.5rem 3rem; gap: 3rem; }
+  }
+
+  @media print {
+    .rail { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    details { break-inside: avoid; }
+    details:not([open]) .answer { display: block; }
+  }
+</style>
+
+<header class="masthead">
+  <div class="wrap masthead-inner">
+    <div class="eyebrow">Smart India Hackathon &middot; Team Briefing &middot; Internal</div>
+    <h1>Bhoomi<em>3D</em> — what we built and how to defend it</h1>
+    <p class="standfirst">
+      Everything the team needs before we present: the problem in one page, the
+      eight things our software does, the inputs a real deployment needs, a
+      click-by-click demo script, the questions judges will ask, and an honest
+      list of the places we can lose.
+    </p>
+    <div class="masthead-meta">
+      <span><b>Problem</b> Extending ULPIN into three dimensions</span>
+      <span><b>Status</b> Working end to end, 124 tests passing</span>
+      <span><b>Demo runtime</b> ~17 s for a full city block</span>
+      <span><b>Read time</b> 20 min</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap layout">
+
+  <nav class="rail" aria-label="Sections">
+    <div class="rail-title">Contents</div>
+    <ol>
+      <li><a href="#problem"><span class="n">01</span><span>The problem</span></a></li>
+      <li><a href="#solution"><span class="n">02</span><span>What we built</span></a></li>
+      <li><a href="#how"><span class="n">03</span><span>How it works</span></a></li>
+      <li><a href="#ulpin"><span class="n">04</span><span>The 3D-ULPIN</span></a></li>
+      <li><a href="#inputs"><span class="n">05</span><span>Inputs required</span></a></li>
+      <li><a href="#walkthrough"><span class="n">06</span><span>Demo script</span></a></li>
+      <li><a href="#time"><span class="n">07</span><span>Time saved</span></a></li>
+      <li><a href="#qa"><span class="n">08</span><span>Judge Q&amp;A</span></a></li>
+      <li><a href="#reject"><span class="n">09</span><span>Where we lose</span></a></li>
+      <li><a href="#numbers"><span class="n">10</span><span>Numbers to memorise</span></a></li>
+      <li><a href="#roles"><span class="n">11</span><span>Who says what</span></a></li>
+    </ol>
+  </nav>
+
+  <main class="content">
+
+    <!-- ================= 01 ================= -->
+    <section id="problem">
+      <div class="sec-head">
+        <div class="sec-num">01 &middot; Cause</div>
+        <h2>Land records are flat. Cities are not.</h2>
+        <p class="lede">The whole project follows from one sentence, and everyone on the team should be able to say it cold.</p>
+      </div>
+
+      <p>
+        Today a land parcel is identified by <strong>where it sits on the ground</strong>. That
+        is a polygon: a boundary drawn on a map, with an owner attached. The system
+        works perfectly for a field. It stopped working the moment somebody built a
+        first floor.
+      </p>
+
+      <p>
+        In any Indian city block, one set of ground coordinates now carries a dozen
+        or more legally distinct things, owned by different people, governed by
+        different authorities:
+      </p>
+
+      <figure>
+        <div class="fig-frame">
+          <svg viewBox="0 0 640 340" role="img" aria-label="Elevation section through an urban site showing air rights, flats, ground level shops, basement parking, a water main, a storm drain and a metro tunnel, all sharing one ground coordinate.">
+            <defs>
+              <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M0 0 L10 5 L0 10 z" fill="currentColor"/>
+              </marker>
+            </defs>
+            <g font-family="IBM Plex Mono, monospace" font-size="10.5">
+
+              <!-- vertical datum line -->
+              <line x1="318" y1="14" x2="318" y2="330" stroke="var(--rule)" stroke-width="1" stroke-dasharray="3 4"/>
+
+              <!-- air rights -->
+              <rect x="188" y="18" width="188" height="40" fill="var(--accent-wash)" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>
+              <text x="282" y="42" text-anchor="middle" fill="var(--accent-ink)">air rights / TDR</text>
+
+              <!-- flats -->
+              <g>
+                <rect x="188" y="62" width="188" height="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+                <text x="282" y="79" text-anchor="middle" fill="var(--ink-soft)">flat 1102 &mdash; owner A</text>
+                <rect x="188" y="88" width="188" height="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+                <text x="282" y="105" text-anchor="middle" fill="var(--ink-soft)">flat 1002 &mdash; owner B</text>
+                <rect x="188" y="114" width="188" height="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+                <text x="282" y="131" text-anchor="middle" fill="var(--muted)">&#8942;</text>
+                <rect x="188" y="140" width="188" height="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+                <text x="282" y="157" text-anchor="middle" fill="var(--ink-soft)">shop 001 &mdash; owner C</text>
+              </g>
+
+              <!-- ground line -->
+              <line x1="66" y1="168" x2="574" y2="168" stroke="var(--ink)" stroke-width="2"/>
+              <text x="70" y="182" fill="var(--muted)">ground level &mdash; the entire 2D record</text>
+
+              <!-- basements -->
+              <rect x="188" y="172" width="188" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+              <text x="282" y="188" text-anchor="middle" fill="var(--ink-soft)">parking B1 &mdash; society</text>
+              <rect x="188" y="196" width="188" height="24" fill="var(--surface-2)" stroke="var(--rule)"/>
+              <text x="282" y="212" text-anchor="middle" fill="var(--ink-soft)">parking B2 &mdash; society</text>
+
+              <!-- utilities -->
+              <rect x="120" y="234" width="330" height="18" rx="2" fill="var(--ok-wash)" stroke="var(--ok)"/>
+              <text x="285" y="247" text-anchor="middle" fill="var(--ok)">600 mm water main &mdash; municipal corporation</text>
+
+              <rect x="150" y="260" width="300" height="18" rx="2" fill="var(--warn-wash)" stroke="var(--warn)"/>
+              <text x="300" y="273" text-anchor="middle" fill="var(--warn)">storm drain &mdash; drainage authority</text>
+
+              <rect x="66" y="292" width="508" height="30" rx="4" fill="var(--risk-wash)" stroke="var(--risk)"/>
+              <text x="320" y="311" text-anchor="middle" fill="var(--risk)">metro tunnel &minus;15.4 m &mdash; metro rail corporation</text>
+
+              <!-- the point -->
+              <g stroke="var(--accent)" fill="var(--accent-ink)" color="var(--accent)">
+                <line x1="318" y1="330" x2="318" y2="336" stroke-width="0"/>
+              </g>
+              <text x="472" y="160" fill="var(--muted)" font-size="10">one ULPIN</text>
+              <line x1="470" y1="164" x2="380" y2="164" stroke="var(--muted)" stroke-width="1" marker-end="url(#ar)" color="var(--muted)"/>
+            </g>
+          </svg>
+        </div>
+        <figcaption>
+          A section through one plot. Every band is a separate legal object with a
+          separate owner. The existing record can describe exactly one of them — the
+          line at ground level.
+        </figcaption>
+      </figure>
+
+      <h3>What that costs, in practice</h3>
+      <ul>
+        <li><strong>Apartment ownership is recorded on paper, not in the cadastre.</strong>
+          A flat is a share in a society plus a sale deed. There is no spatial record
+          of which cubic metres you bought, so boundary disputes between neighbouring
+          flats have no authoritative geometry to resolve them against.</li>
+        <li><strong>Utilities get cut.</strong> A builder excavating a basement has no
+          reliable machine-readable record of what runs beneath. Every city has a
+          steady rate of struck water mains, cables and gas lines.</li>
+        <li><strong>Unauthorised construction is invisible to the file.</strong> If a
+          builder adds a floor beyond sanction, the paper record still agrees with
+          itself perfectly. Nothing in the record can contradict it.</li>
+        <li><strong>Air rights and TDR have no spatial identity.</strong> Development
+          rights are traded, but the volume being traded cannot be pointed at.</li>
+        <li><strong>Metro, utility and property records live in different systems</strong>
+          with no shared identifier, so "is this foundation clear of the tunnel?" is
+          a meeting, not a query.</li>
+      </ul>
+
+      <div class="note">
+        <h4>The one-line version</h4>
+        <p>
+          A 2D identifier can name the column. It cannot name anything inside it.
+          We are giving every legally meaningful volume of urban space its own
+          identity.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 02 ================= -->
+    <section id="solution">
+      <div class="sec-head">
+        <div class="sec-num">02 &middot; Solution</div>
+        <h2>What we actually built</h2>
+        <p class="lede">Not a 3D map. A land record that happens to be three-dimensional.</p>
+      </div>
+
+      <p>
+        Bhoomi3D takes the data a survey already produces — drone LiDAR, an
+        orthophoto, GNSS ground control, the existing 2D parcel layer, approved
+        building plans, utility records — and produces a validated register in which
+        every flat, shop, parking bay, basement, tunnel segment and block of air
+        rights is a <strong>solid with a unique number</strong>.
+      </p>
+
+      <p>Seven things it does, in order:</p>
+
+      <ol>
+        <li><strong>Ingests</strong> real survey formats — LAS/LAZ, GeoTIFF, GeoJSON — not a bespoke format.</li>
+        <li><strong>Extracts</strong> buildings automatically from the point cloud. Nobody draws a polygon.</li>
+        <li><strong>Finds the floors</strong> inside each building from the facade, without entering it.</li>
+        <li><strong>Builds 3D parcels</strong> — a footprint swept between two elevations, one per legal object.</li>
+        <li><strong>Issues a 3D-ULPIN</strong> to each, with a check character that catches typing errors offline.</li>
+        <li><strong>Validates</strong> the whole register: overlapping ownership, unclaimed space, clearance breaches, unauthorised storeys.</li>
+        <li><strong>Serves it</strong> through a REST API and a 3D viewer that runs with no internet connection.</li>
+      </ol>
+
+      <div class="note ok">
+        <h4>The distinction to insist on</h4>
+        <p>
+          A viewer shows you a building. A cadastre can answer <em>"who owns the
+          cubic metres at this coordinate and elevation, and what is the evidence?"</em>
+          Every object we store carries an identifier, an owner, a parent, and a
+          record of whether its boundary was surveyed, taken from an approved plan,
+          or inferred by our software. That last field is what makes it a record
+          rather than a picture.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 03 ================= -->
+    <section id="how">
+      <div class="sec-head">
+        <div class="sec-num">03 &middot; Method</div>
+        <h2>How it works — the eight stages</h2>
+        <p class="lede">Learn the <em>why</em> column. Judges ask "why that algorithm", not "what does it do".</p>
+      </div>
+
+      <div class="stages">
+        <div class="stage">
+          <div class="sn">01</div>
+          <div class="sbody">
+            <div class="sname">GNSS / CORS datum adjustment</div>
+            <div class="swhy">A drone block is internally consistent but floats in an arbitrary datum. A Helmert (7-parameter) fit ties it to the national frame. Bad ground control is common, so we use Baarda data snooping — testing each residual against the known GNSS precision, not against its own scatter, because one blunder inflates that scatter enough to hide itself.</div>
+          </div>
+          <div class="stime">0.04 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">02</div>
+          <div class="sbody">
+            <div class="sname">Ground filtering — SMRF</div>
+            <div class="swhy">Separates bare earth from everything standing on it, producing the terrain model every later height is measured from. Published algorithm (Pingel et al., ISPRS 2013). Chosen because it has exactly two parameters with physical meaning — largest object to remove, steepest plausible terrain — that a surveyor can actually tune.</div>
+          </div>
+          <div class="stime">0.75 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">03</div>
+          <div class="sbody">
+            <div class="sname">Building extraction</div>
+            <div class="swhy">Eigenvalue features separate flat roofs from scattered tree canopy; DBSCAN splits the result into individual buildings; an alpha shape traces each outline; regularisation squares it to its dominant wall direction. Trees are the dominant false positive in every automated cadastral pipeline, and this is the stage that removes them.</div>
+          </div>
+          <div class="stime">11.5 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">04</div>
+          <div class="sbody">
+            <div class="sname">Imagery cross-check</div>
+            <div class="swhy">The orthophoto is extracted independently and matched against the LiDAR result. Two sensors agreeing is evidence; one sensor repeating itself is not. Anything found by only one sensor gets flagged for a surveyor.</div>
+          </div>
+          <div class="stime">3.2 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">05</div>
+          <div class="sbody">
+            <div class="sname">Import the existing 2D record</div>
+            <div class="swhy">The legacy cadastral layer is imported as-is and given a vertical extent. We extend the existing record; we do not replace it. Its horizontal boundaries keep their original authority.</div>
+          </div>
+          <div class="stime">&lt; 0.01 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">06</div>
+          <div class="sbody">
+            <div class="sname">Storey segmentation</div>
+            <div class="swhy">The one that sounds impossible. Building facades repeat vertically — balcony slabs, window bands, string courses all at the storey pitch — so the facade's height histogram carries a periodic signal whose period <em>is</em> the floor-to-floor height. We recover it by autocorrelation and the phase by matched filtering. Gets 3.85 m commercial floors right, which a fixed 3 m assumption does not.</div>
+          </div>
+          <div class="stime">1.0 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">07</div>
+          <div class="sbody">
+            <div class="sname">Volumetric delineation &amp; ULPIN minting</div>
+            <div class="swhy">Builds the parcel → building → storey → unit hierarchy, plus air rights above and infrastructure corridors below, and mints an identifier for each. Where an approved floor plan exists it is used verbatim; where none exists the storey is registered as one unallocated volume rather than inventing flat boundaries.</div>
+          </div>
+          <div class="stime">0.06 s</div>
+        </div>
+
+        <div class="stage">
+          <div class="sn">08</div>
+          <div class="sbody">
+            <div class="sname">Validation — ten rules</div>
+            <div class="swhy">Overlapping ownership volumes, unclaimed floor area, containment breaches, storey gaps, infrastructure clearance, unauthorised storeys, area mismatches, duplicate identifiers, degenerate geometry, and a list of everything still awaiting ground verification.</div>
+          </div>
+          <div class="stime">0.07 s</div>
+        </div>
+      </div>
+
+      <h3>The technology, and why each choice</h3>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Layer</th><th>What we use</th><th>Why this and not the obvious alternative</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Geometry kernel</td>
+              <td class="mono">Prisms + Shapely</td>
+              <td>Nearly every legal solid is a footprint swept between two elevations. Restricting the primitive to a prism makes overlap volumes and clearances <em>exact and closed-form</em> — no mesh boolean library, no tolerance tuning.</td>
+            </tr>
+            <tr>
+              <td>Coordinates</td>
+              <td class="mono">Local ENU on WGS-84</td>
+              <td>Metric, so areas and volumes are directly meaningful. Full ellipsoid maths, no PROJ dependency — installs on a locked-down government machine without a GDAL toolchain.</td>
+            </tr>
+            <tr>
+              <td>Point-cloud AI</td>
+              <td class="mono">SMRF, DBSCAN, RANSAC, PCA features</td>
+              <td>Published, auditable algorithms that need no labelled training data. An Indian urban cadastral training set at the required quality does not exist; a model we could not explain would not be admissible anyway.</td>
+            </tr>
+            <tr>
+              <td>Imagery</td>
+              <td class="mono">Spectral rejector + height fusion</td>
+              <td>Deliberately honest: RGB alone cannot tell a roof from a paved forecourt, and our module <em>demonstrates</em> that failure before resolving it with height. A trained model drops into the same interface.</td>
+            </tr>
+            <tr>
+              <td>Backend</td>
+              <td class="mono">Python, FastAPI, NumPy, SciPy</td>
+              <td>Standard, reviewable, no exotic dependencies. The API is OpenAPI-documented automatically.</td>
+            </tr>
+            <tr>
+              <td>Viewer</td>
+              <td class="mono">Hand-written WebGL2</td>
+              <td>No Three.js, no CDN, no network at runtime. A demo that fails because the venue wifi is down is a demo we lose.</td>
+            </tr>
+            <tr>
+              <td>Storage</td>
+              <td class="mono">JSON document</td>
+              <td>Correct at demonstration scale. The register class is the seam where PostGIS goes for a city-scale deployment — we say this out loud rather than being caught by it.</td>
+            </tr>
+          </tbody>
+        </table>
+        <caption>Every row here is a question a technical judge may open with.</caption>
+      </div>
+    </section>
+
+    <!-- ================= 04 ================= -->
+    <section id="ulpin">
+      <div class="sec-head">
+        <div class="sec-num">04 &middot; Identifier</div>
+        <h2>The 3D-ULPIN</h2>
+        <p class="lede">If we only get to explain one thing in detail, it is this.</p>
+      </div>
+
+      <pre><code>27 - 025 - 004 - tek92et7bx - B04 - 00DY - 5
+│     │     │         │        │ │    │     │
+│     │     │         │        │ │    │     └─ check character (ISO 7064 MOD 37,36)
+│     │     │         │        │ │    └─────── unit sequence on that level
+│     │     │         │        │ └──────────── level index
+│     │     │         │        └────────────── stratum: G B U A I
+│     │     │         └─────────────────────── geohash-10 of the centroid (1.1 m × 0.6 m)
+│     │     └───────────────────────────────── tehsil / ULB code
+│     └─────────────────────────────────────── district code (LGD)
+└───────────────────────────────────────────── state code (LGD)</code></pre>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Property</th><th>How it is achieved</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Unique in 3D</strong></td><td>Horizontal identity from the geohash, vertical identity from stratum + level. A flat on floor 10 and the metro tunnel beneath it share a geohash and differ in stratum.</td></tr>
+            <tr><td><strong>Self-describing</strong></td><td>State, district, tehsil, above/below ground, which level, and the approximate position — all readable with no database lookup.</td></tr>
+            <tr><td><strong>Error-detecting</strong></td><td>The check character catches <em>100 %</em> of single-character typos and <em>100 %</em> of adjacent transpositions. We verify this exhaustively in tests — all 910 possible substitutions, not a sample.</td></tr>
+            <tr><td><strong>Stable</strong></td><td>Minted once, never changes. Re-survey drift is reported as an advisory against the cell recorded at mint time, never as a new number. Otherwise a 3 cm boundary correction could orphan every deed referencing the property.</td></tr>
+            <tr><td><strong>Collision-resistant</strong></td><td>Administrative namespacing, deterministic minting, and a registry constraint that refuses to re-issue a number to a different object — which is what catches conflicts when two offline registers merge.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <h4>The tension worth naming before a judge finds it</h4>
+        <p>
+          The geohash makes the number self-locating, but it is derived from the
+          centroid — and re-surveys move centroids. We resolved that deliberately:
+          the identifier is <strong>minted once and immutable</strong>, the geohash
+          records where the object was at mint time, and drift is detected and
+          reported rather than silently changing anyone's property number. Say this
+          before they ask; it shows the design was thought through.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 05 ================= -->
+    <section id="inputs">
+      <div class="sec-head">
+        <div class="sec-num">05 &middot; Inputs</div>
+        <h2>What a real deployment needs</h2>
+        <p class="lede">Expect "where does this data come from?" — it is the most common practical question, and the honest answer is that most of it already exists.</p>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Input</th><th>Format</th><th>Who already has it</th><th>Needed?</th><th>Without it</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>LiDAR point cloud</strong><br><span class="mono" style="font-size:.78rem;color:var(--muted)">or photogrammetric cloud</span></td>
+              <td class="mono">.las / .laz</td>
+              <td>Drone survey contractor; SVAMITVA drone programme; state remote-sensing centres</td>
+              <td><span class="pill req">Required</span></td>
+              <td>Nothing to extract from. This is the one genuinely mandatory input.</td>
+            </tr>
+            <tr>
+              <td><strong>Existing 2D parcels</strong></td>
+              <td class="mono">GeoJSON / Shapefile</td>
+              <td>State land-records department (DILRMP / Bhu-Naksha)</td>
+              <td><span class="pill req">Required</span></td>
+              <td>No legal anchor — buildings would have no parcel to belong to.</td>
+            </tr>
+            <tr>
+              <td><strong>GNSS / CORS ground control</strong></td>
+              <td class="mono">JSON / CSV</td>
+              <td>Survey of India CORS network; the survey contractor</td>
+              <td><span class="pill warn">Strongly advised</span></td>
+              <td>Runs, but absolute accuracy is unverified. We say so explicitly in the output rather than pretending.</td>
+            </tr>
+            <tr>
+              <td><strong>Approved floor plans</strong></td>
+              <td class="mono">JSON (from DWG/PDF)</td>
+              <td>Municipal building-permission department; society records</td>
+              <td><span class="pill warn">Per building</span></td>
+              <td>Storeys are still detected, but each is registered as one <em>unallocated volume</em> — we refuse to invent flat boundaries.</td>
+            </tr>
+            <tr>
+              <td><strong>Utility &amp; tunnel alignments</strong></td>
+              <td class="mono">JSON / GeoJSON</td>
+              <td>Municipal water &amp; drainage; metro rail corporation; power utility</td>
+              <td><span class="pill opt">Optional</span></td>
+              <td>No subsurface objects and no clearance checking — we lose one of our strongest demos.</td>
+            </tr>
+            <tr>
+              <td><strong>Drone orthophoto</strong></td>
+              <td class="mono">GeoTIFF / PNG + sidecar</td>
+              <td>Same flight as the LiDAR</td>
+              <td><span class="pill opt">Optional</span></td>
+              <td>No independent second-sensor cross-check.</td>
+            </tr>
+            <tr>
+              <td><strong>DEM / DSM</strong></td>
+              <td class="mono">GeoTIFF</td>
+              <td>Derived by us, or supplied by a state GIS department</td>
+              <td><span class="pill opt">Optional</span></td>
+              <td>Nothing — we generate them from the cloud. Accepted when a department already has them.</td>
+            </tr>
+          </tbody>
+        </table>
+        <caption>Sizes on our demo block: 4.9 MB cloud, 1.7 MB orthophoto, 250 KB each for DEM and DSM, 42 KB of floor plans.</caption>
+      </div>
+
+      <div class="note ok">
+        <h4>The line to use</h4>
+        <p>
+          "Four of the seven inputs are things a state land-records department, a
+          municipal corporation and a metro authority already hold today. The only
+          genuinely new acquisition is the drone flight — and under SVAMITVA, drone
+          survey of inhabited areas is already national policy."
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 06 ================= -->
+    <section id="walkthrough">
+      <div class="sec-head">
+        <div class="sec-num">06 &middot; Operation</div>
+        <h2>Running it, and the demo script</h2>
+        <p class="lede">Rehearse this until it takes four minutes with no dead air.</p>
+      </div>
+
+      <h3>Setup, once</h3>
+      <pre><code><span class="cmt"># create the environment and install dependencies</span>
+<span class="cmd">python -m venv .venv</span>
+<span class="cmd">.venv/Scripts/python -m pip install -r backend/requirements.txt</span>
+
+<span class="cmt"># build the demonstration dataset and run the whole pipeline (~30 s)</span>
+<span class="cmd">.venv/Scripts/python scripts/build_demo.py</span>
+
+<span class="cmt"># start the API and viewer</span>
+<span class="cmd">.venv/Scripts/python scripts/serve.py</span></code></pre>
+      <p>Then open <code>http://127.0.0.1:8000/</code>. On macOS or Linux use <code>.venv/bin/python</code>. There is also a one-shot <code>scripts/run.ps1</code> that does all three.</p>
+
+      <div class="note">
+        <h4>Before we present</h4>
+        <p>
+          Run <code>build_demo.py</code> and start the server <strong>before</strong> we walk
+          in, and leave the browser open on the loaded viewer. Never build the dataset
+          live — 30 seconds of silence is 30 seconds of lost attention, and we can
+          re-run the pipeline on stage from inside the app anyway (step 6).
+        </p>
+      </div>
+
+      <h3>The six-step demo</h3>
+      <ol>
+        <li>
+          <strong>Open on the loaded register.</strong> Top bar reads
+          <span class="mono">143 objects · 97 units · 30 storeys · 3 corridors · 143 ULPINs · z −17.0 to 68.2 m</span>.
+          Say: <em>"Nothing about these buildings was given to the software. It was handed a point cloud."</em>
+        </li>
+        <li>
+          <strong>Click a building, then a floor, then a flat.</strong> The inspector shows
+          the 3D-ULPIN decoded field by field, plan area, volume, height, z-range,
+          owner, and a provenance badge. Point at the badge — <em>"this says the boundary
+          came from an approved plan, not from our guess."</em>
+        </li>
+        <li>
+          <strong>Turn on Column probe and click the ground.</strong> The vertical stack
+          appears as a scale strip: air rights, ten floors and their flats, the
+          building, the parcel, two basements, the storm drain. <em>"Twenty-nine
+          objects at one coordinate. A 2D record has one row for this."</em>
+        </li>
+        <li>
+          <strong>Open the Validation tab.</strong> Five errors, each with the measured
+          quantity that makes it an error. Walk the three headline ones:
+          unauthorised storey, overlapping flats, drain through a basement raft.
+          Press <span class="mono">show in 3D</span> — the camera flies to the defect and outlines it.
+        </li>
+        <li>
+          <strong>Open the Accuracy tab.</strong> Every stage scored against ground truth.
+          <em>"A pipeline that cannot state its own accuracy has no business producing
+          a legal record."</em>
+        </li>
+        <li>
+          <strong>Press "Re-run AI pipeline".</strong> All eight stages execute live and stream
+          back in about seventeen seconds. This is the moment that proves it is a
+          working system and not a rendered mock-up. <strong>Always end on this.</strong>
+        </li>
+      </ol>
+
+      <h3>If they want to see the API instead</h3>
+      <pre><code><span class="cmt"># everything in the vertical column at one position</span>
+<span class="cmd">GET /api/column?x=52&amp;y=52</span>
+
+<span class="cmt"># resolve an identifier; check character verified before any lookup</span>
+<span class="cmd">GET /api/ulpin/27-025-004-tek92et7bx-B04-00DY-5</span>
+
+<span class="cmt"># what contains this exact 3D point</span>
+<span class="cmd">GET /api/at?lat=18.5209&amp;lon=73.8572&amp;z=31.5</span>
+
+<span class="cmt"># open the register in QGIS</span>
+<span class="cmd">GET /api/export/geojson</span></code></pre>
+      <p>Interactive docs are at <code>/docs</code> — that is a strong thing to show a technical judge, because it is generated from the code, not written for the demo.</p>
+    </section>
+
+    <!-- ================= 07 ================= -->
+    <section id="time">
+      <div class="sec-head">
+        <div class="sec-num">07 &middot; Value</div>
+        <h2>Where the time actually goes</h2>
+        <p class="lede">Be precise about what we measured and honest about what we estimated. Judges punish invented numbers harder than modest ones.</p>
+      </div>
+
+      <p>
+        Our machine-measured figure is exact: <strong>17 seconds</strong> for a full
+        city block of 609,177 points, producing 143 identified objects. Everything in
+        the "manual" column below is an <em>estimate</em> of conventional practice, and
+        we should present it as such.
+      </p>
+
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Task, per city block</th><th>Conventional practice <span style="font-weight:400;text-transform:none;letter-spacing:0">(estimate)</span></th><th class="num">Bhoomi3D</th><th>Basis</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Tie survey block to national datum</td><td>Manual adjustment, blunder hunted by eye</td><td class="num">0.04 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Classify ground vs structures</td><td>Semi-automatic, manual clean-up pass</td><td class="num">0.75 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Digitise building footprints</td><td>Traced by hand, ~15–30 min per building</td><td class="num">11.5 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Determine storey count and levels</td><td>Site visit or plan lookup per building</td><td class="num">1.0 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Build 3D volumes and assign IDs</td><td>Not done at all today</td><td class="num">0.06 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Cross-check clearances against utilities</td><td>Inter-departmental correspondence</td><td class="num">0.07 s</td><td class="pill good">Measured</td></tr>
+            <tr><td>Detect unauthorised construction</td><td>Complaint-driven; often never</td><td class="num">included</td><td class="pill good">Measured</td></tr>
+          </tbody>
+        </table>
+        <caption>Right-hand column measured on our reference hardware. Left-hand column is an estimate of current practice and must be labelled as one.</caption>
+      </div>
+
+      <h3>The three time savings that matter most</h3>
+      <ul>
+        <li><strong>Footprint digitisation disappears.</strong> This is the bulk of manual
+          cadastral mapping effort, and it is fully automated at 98.4 % mean IoU
+          against truth.</li>
+        <li><strong>Errors are caught at data-entry time, not in court.</strong> An overlap
+          between two flats found by a validator costs seconds. The same overlap found
+          after both deeds are registered costs years of litigation. This is the real
+          saving and it is not measured in machine seconds.</li>
+        <li><strong>Clearance questions become queries.</strong> "Is this excavation clear of
+          the tunnel?" changes from an inter-departmental letter to an API call
+          returning a number.</li>
+      </ul>
+
+      <div class="note risk">
+        <h4>Do not say this</h4>
+        <p>
+          Do not claim a specific multiplier — "100× faster", "saves 6 months per
+          ward". We have not measured a manual baseline, and a judge who works in
+          land records will know the real figure and will stop trusting everything
+          else we said. Say <em>"footprint digitisation is the largest manual cost in
+          cadastral mapping and we automate it entirely; here is our measured accuracy."</em>
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 08 ================= -->
+    <section id="qa">
+      <div class="sec-head">
+        <div class="sec-num">08 &middot; Defence</div>
+        <h2>Questions judges will ask</h2>
+        <p class="lede">Every answer below is grounded in something we can show on screen. If an answer is not demonstrable, do not give it.</p>
+      </div>
+
+      <div class="qa">
+
+        <details>
+          <summary>Isn't this just a 3D visualisation? What makes it a cadastre?</summary>
+          <div class="answer">
+            <p>
+              A viewer draws a building. A cadastre answers who owns which cubic
+              metres, with what evidence. Every object we store carries a unique
+              identifier, an owner, a parent in a legal hierarchy, and a
+              <strong>provenance field</strong> recording whether the boundary was
+              surveyed, taken from an approved plan, or inferred by our software.
+              We validate the whole register against ten topology rules and export
+              to GeoJSON and CityGML.
+            </p>
+            <p class="say"><b>Show:</b> click a flat, point at the provenance badge, then open the Validation tab.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Where is the AI? These look like classical algorithms.</summary>
+          <div class="answer">
+            <p>
+              They are, and that is a deliberate engineering decision we can defend.
+              We use eigenvalue-based semantic classification, density-based instance
+              segmentation, RANSAC plane fitting and spectral analysis — the standard
+              machine-learning toolkit for point clouds, from the ISPRS literature.
+            </p>
+            <p>Three reasons we did not use deep learning here:</p>
+            <ul>
+              <li>No labelled Indian urban cadastral dataset exists at the required quality. A model trained on Vaihingen or ISPRS Potsdam would not transfer.</li>
+              <li>The output has legal consequences. A surveyor has to be able to audit why a boundary was drawn where it was; "the network said so" is not admissible.</li>
+              <li>It works — F1 of 1.00 and mean IoU of 0.984 against ground truth. Adding an unexplainable model would not improve that.</li>
+            </ul>
+            <p>
+              We built the interface a trained model plugs into and left it documented
+              and deliberately unimplemented rather than faking it.
+            </p>
+            <p class="say"><b>Show:</b> the Accuracy tab, and <code>ai/image_segment.py</code> — the <code>OnnxBackend</code> class.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Your data is synthetic. Does this work on real data?</summary>
+          <div class="answer">
+            <p>
+              This is the fairest question we will get, and we answer it directly.
+              The data is synthetic <strong>so that ground truth exists</strong> — it
+              is the only way to state accuracy as a number rather than an opinion.
+              We know the true footprint, height and floor count of every building,
+              so every stage is scored, not admired.
+            </p>
+            <p>
+              The simulator deliberately models what makes real extraction hard: trees
+              taller than the low-rise buildings, parapets that make roofs read tall,
+              occlusion that thins the lower storeys, sensor noise, and an unknown
+              datum shift with a planted blunder in the ground control.
+            </p>
+            <p>
+              The pipeline reads real LAS/LAZ and GeoTIFF today. Point it at a real
+              survey and it runs — the simulator is not load-bearing. What we would
+              gain from real data is <em>calibration</em>, and that is our stated next
+              step.
+            </p>
+            <p class="say"><b>Never say:</b> "it will definitely work the same on real data." <b>Say:</b> "these numbers prove the algorithms are correct; real data proves they are calibrated, and that is the next step."</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>How does this scale from one block to a whole city?</summary>
+          <div class="answer">
+            <p>
+              Honestly: the algorithms scale, the storage layer does not yet. Every
+              extraction stage is tiled and near-linear — validation uses a
+              sort-and-sweep spatial index rather than comparing every pair. The
+              register is currently a JSON document, which is correct for hundreds of
+              objects and wrong for millions.
+            </p>
+            <p>
+              We isolated that deliberately: the register class is a single interface
+              that a PostGIS-backed store replaces without touching any other stage.
+              That is a known, scoped piece of work, not an unknown.
+            </p>
+            <p class="say"><b>Strength to convert:</b> naming your own limitation precisely, with the fix already scoped, reads as engineering maturity. Being caught out on it reads as the opposite.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Doesn't ArcGIS / Bentley / CityEngine already do this?</summary>
+          <div class="answer">
+            <p>
+              They do 3D city modelling. They do not do 3D <em>cadastre</em>. The
+              difference is identity and legal validation: none of them mints a
+              collision-resistant, check-summed property identifier for a volumetric
+              parcel, or validates a register for overlapping ownership and statutory
+              clearance breaches.
+            </p>
+            <p>
+              They are also proprietary and expensive per seat. Ours has no licence
+              cost, no external service dependency, and runs offline on a laptop —
+              which matters a great deal for a tehsil office.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Is there a legal basis for a 3D ULPIN? Can a state actually use this?</summary>
+          <div class="answer">
+            <p>
+              Be careful and truthful here. ULPIN exists under DILRMP; a volumetric
+              extension of it does not yet have a statutory framework, and we should
+              not claim otherwise.
+            </p>
+            <p>
+              What we can say: apartment ownership already has legal standing under
+              state apartment-ownership acts and RERA, and the identifier we designed
+              is deliberately built as an <em>extension</em> of the existing LGD-coded
+              ULPIN rather than a replacement — the first three fields are the existing
+              administrative codes. The 2D record we import keeps its original
+              authority. Adoption is a policy decision; we built the technical
+              instrument it would need.
+            </p>
+            <p class="say"><b>Say:</b> "we are not asking anyone to replace the land record. We extend it, and everything we infer is flagged as inferred until a surveyor signs it off."</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>What if the drone survey is poor quality — occlusion, dense trees, narrow lanes?</summary>
+          <div class="answer">
+            <p>
+              Degradation is graceful and visible rather than silent. Confidence is
+              computed per building from three independent signals — how building-like
+              the points were, how completely the footprint was covered, and how far
+              regularisation had to move the outline. Low-confidence objects are
+              flagged in the validation report for ground verification and are
+              prioritised in that list.
+            </p>
+            <p>
+              The storey stage behaves the same way: if the facade shows no periodic
+              signal it reports a low periodicity strength and falls back to uniform
+              division, and the validator downgrades an unauthorised-storey finding
+              from an error to a warning because an enforcement action needs evidence.
+            </p>
+            <p class="say"><b>Show:</b> the "scan confidence" figure inside the unauthorised-storey finding.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>Who is the user? A tehsildar is not going to run a Python script.</summary>
+          <div class="answer">
+            <p>
+              Three distinct users, and only one of them touches the pipeline:
+            </p>
+            <ul>
+              <li><strong>The survey contractor or state GIS cell</strong> runs the pipeline once per area — that is a specialist, technical job.</li>
+              <li><strong>The land-records officer</strong> uses the viewer and the search box: type a ULPIN or an owner name, inspect the property, read the validation findings.</li>
+              <li><strong>Other departments</strong> use the API — the metro authority querying clearance, the building-permission cell querying what exists on a plot.</li>
+            </ul>
+            <p>
+              The viewer needs no training beyond "click the thing you want to know about".
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary>What does it cost to deploy?</summary>
+          <div class="answer">
+            <p>
+              No licence cost — every dependency is open source. No external service,
+              no API keys, no cloud requirement; it runs on a laptop and works offline.
+              The real cost is the drone survey, which under SVAMITVA is already being
+              funded and flown for inhabited areas.
+            </p>
+            <p class="say"><b>Do not</b> quote a rupee figure per ward. We have not costed one.</p>
+          </div>
+        </details>
+
+        <details>
+          <summary>How do you handle privacy? This is ownership data.</summary>
+          <div class="answer">
+            <p>
+              The platform stores what a land record already stores and adds no new
+              personal data — no Aadhaar, no phone numbers, no financial information.
+              It runs entirely on-premise with no outbound network calls, so data never
+              leaves the department's machine. Access control would be inherited from
+              the department's existing land-records system rather than reinvented by us.
+            </p>
+          </div>
+        </details>
+
+        <details>
+          <summary>What is genuinely novel here? Surely someone has done 3D cadastre.</summary>
+          <div class="answer">
+            <p>
+              3D cadastre is an established research field — we should say so rather
+              than pretend otherwise; it has an FIG working group and pilots in the
+              Netherlands, Singapore and Queensland. What we have not found combined
+              in one working system:
+            </p>
+            <ul>
+              <li>A volumetric identifier designed as a <strong>backward-compatible extension of India's existing ULPIN</strong>, with provable offline error detection.</li>
+              <li><strong>Fully automated</strong> extraction from raw survey to identified volumes, with no manual digitisation step.</li>
+              <li>Validation that spans <strong>property and infrastructure together</strong> — flats and metro tunnels checked against each other by the same rule engine.</li>
+              <li>Self-scoring: the pipeline reports its own measured accuracy on every run.</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>Show me it is not hard-coded to your demo.</summary>
+          <div class="answer">
+            <p>
+              Press <strong>Re-run AI pipeline</strong>. Every stage executes live from the
+              raw point cloud and streams its result back. Then open the Accuracy tab —
+              the numbers are recomputed, not stored strings.
+            </p>
+            <p>
+              For a technical judge: <code>python -m pytest -q</code> runs 124 tests in about
+              ten seconds, including an end-to-end test that runs the real pipeline
+              and asserts the accuracy thresholds.
+            </p>
+            <p class="say"><b>This is our strongest single move.</b> Keep a terminal open on a second window with the test command ready.</p>
+          </div>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- ================= 09 ================= -->
+    <section id="reject">
+      <div class="sec-head">
+        <div class="sec-num">09 &middot; Risk register</div>
+        <h2>Where we can lose</h2>
+        <p class="lede">Ranked by how likely it is to cost us. Read this section twice — knowing our weak points is worth more than rehearsing our strong ones.</p>
+      </div>
+
+      <div class="risks">
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">1 &middot; "It only works on data you made up"</span>
+            <span class="pill req">Highest risk</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              It is true, it is obvious, and if we look defensive the entire accuracy
+              table stops counting.</p>
+            <p><span class="lbl">How we answer</span>
+              Lead with it before they raise it. "Synthetic <em>so that</em> ground truth
+              exists — otherwise we could not put a number on accuracy at all." Then
+              show that the simulator models the hard cases deliberately: trees taller
+              than buildings, parapets, occlusion, a planted control blunder.</p>
+            <p><span class="lbl">What would kill this objection</span>
+              A single real LAS tile from any Indian city run through the pipeline,
+              even without ground truth — just to show it ingests and produces
+              plausible footprints. <strong>If we can get one before the finals, do it.</strong>
+              This is the highest-value remaining task on the project.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">2 &middot; "This isn't AI/ML, it's image processing"</span>
+            <span class="pill req">High risk</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              The problem statement asks for AI/ML. A judge scanning for a neural
+              network will not find one, and some judges score on buzzwords.</p>
+            <p><span class="lbl">How we answer</span>
+              Name the methods precisely — unsupervised clustering, PCA-based feature
+              extraction, RANSAC model fitting, spectral analysis — and cite the ISPRS
+              literature they come from. Then give the three reasons (no dataset,
+              auditability, it already works) and point at the ONNX interface we built
+              for a trained model.</p>
+            <p><span class="lbl">Tone</span>
+              Confident, not apologetic. "We chose interpretable models because the
+              output has legal consequences" is a stronger position than a black box —
+              but only if we say it like we mean it.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">3 &middot; No government stakeholder has validated it</span>
+            <span class="pill warn">Medium-high</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              SIH judges weight deployability heavily. "Have you spoken to a land
+              records department?" is a very common question and we currently have to
+              say no.</p>
+            <p><span class="lbl">How we answer</span>
+              Do not bluff. Say what we grounded the design in instead: LGD
+              administrative codes, the existing ULPIN structure, DILRMP, SVAMITVA
+              drone survey, and real municipal clearance rules for utility corridors.
+              Then state the specific next step — a pilot on one ward with one ULB.</p>
+            <p><span class="lbl">Before finals</span>
+              Even one 20-minute conversation with a municipal GIS or land-records
+              officer, quoted by name and designation, converts this from a weakness
+              into a strength.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">4 &middot; Scale is untested</span>
+            <span class="pill warn">Medium</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              One block is not a city, and JSON storage is an easy thing to attack.</p>
+            <p><span class="lbl">How we answer</span>
+              Concede the storage layer immediately and precisely, and note that the
+              extraction stages are already tiled and near-linear. Say where PostGIS
+              goes and why nothing else changes when it does.</p>
+            <p><span class="lbl">Cheap mitigation</span>
+              Run the pipeline on a larger simulated extent and quote the timing. This
+              is a few hours of work and turns a soft answer into a measured one.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">5 &middot; The legal framework for a 3D ULPIN does not exist</span>
+            <span class="pill warn">Medium</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              A policy-minded judge can argue the whole thing is premature.</p>
+            <p><span class="lbl">How we answer</span>
+              Agree, then reframe. Policy follows capability: the reason there is no
+              framework is partly that there has been no instrument. Stress that we
+              extend rather than replace — the first three fields are the existing
+              administrative codes, the imported 2D boundaries keep their authority,
+              and everything we infer is flagged as inferred until signed off.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">6 &middot; The demo fails live</span>
+            <span class="pill warn">Medium &middot; entirely preventable</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              It ends the presentation regardless of how good the work is.</p>
+            <p><span class="lbl">Prevention checklist</span></p>
+            <ul>
+              <li>Dataset built and server started <strong>before</strong> entering the room.</li>
+              <li>Browser already open on the loaded viewer, not on a blank tab.</li>
+              <li>The viewer needs no internet — but confirm the machine is not on a proxy that intercepts localhost.</li>
+              <li>Second machine with the identical state, ready to swap.</li>
+              <li>Screen-recorded run of the full demo as a fallback video.</li>
+              <li>Check the laptop supports WebGL2 — the viewer states this clearly if not, but find out beforehand.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">7 &middot; "Where is the mobile app / field verification?"</span>
+            <span class="pill opt">Lower</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">How we answer</span>
+              We built the API first, deliberately — a field app is a client of it, and
+              the validation report already produces a prioritised list of exactly which
+              objects need ground verification. That list is the work order a field app
+              would consume. Scoped, not overlooked.</p>
+          </div>
+        </div>
+
+        <div class="risk-card">
+          <div class="risk-head">
+            <span class="rt">8 &middot; Someone on the team cannot explain their own module</span>
+            <span class="pill req">Silent killer</span>
+          </div>
+          <div class="risk-body">
+            <p><span class="lbl">Why it bites</span>
+              Judges often direct a question at whoever has not spoken. One member
+              saying "I'm not sure, that's his part" undoes the credibility of
+              everything already said.</p>
+            <p><span class="lbl">Fix</span>
+              Section 11 assigns an owner to every part. Everyone must be able to give
+              a 30-second answer on <em>any</em> section, and a two-minute answer on their
+              own. Rehearse by having each person answer a question from someone
+              else's area.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 10 ================= -->
+    <section id="numbers">
+      <div class="sec-head">
+        <div class="sec-num">10 &middot; Recall</div>
+        <h2>Numbers to memorise</h2>
+        <p class="lede">All measured against ground truth and regenerated on every run. Do not round them upward when speaking.</p>
+      </div>
+
+      <div class="figures">
+        <div class="fig-card"><span class="v">1.00</span><span class="k">Building detection F1 — 4 of 4, no false positives</span></div>
+        <div class="fig-card"><span class="v">0.984</span><span class="k">Mean IoU of extracted footprints vs truth</span></div>
+        <div class="fig-card"><span class="v">0.055 m</span><span class="k">Building height RMSE</span></div>
+        <div class="fig-card"><span class="v">0.88 %</span><span class="k">Mean plan-area error</span></div>
+        <div class="fig-card"><span class="v">100 %</span><span class="k">Floor-count accuracy (4 of 4 buildings)</span></div>
+        <div class="fig-card"><span class="v">0.991</span><span class="k">Ground filter Cohen's kappa</span></div>
+        <div class="fig-card"><span class="v">0.021 m</span><span class="k">GNSS/CORS residual RMS, blunder rejected</span></div>
+        <div class="fig-card"><span class="v">0.86</span><span class="k">Imagery–LiDAR agreement IoU, 4 of 4</span></div>
+        <div class="fig-card"><span class="v">143</span><span class="k">Objects registered, each with a ULPIN</span></div>
+        <div class="fig-card"><span class="v">17 s</span><span class="k">Full pipeline, 609,177 points</span></div>
+        <div class="fig-card"><span class="v">124</span><span class="k">Tests passing, ~10 s</span></div>
+        <div class="fig-card"><span class="v">100 %</span><span class="k">Typos and transpositions caught by the check character</span></div>
+      </div>
+
+      <h3>The three defects we detect, with their measured values</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Defect</th><th>What the system reports</th><th>Why 2D cannot see it</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Unauthorised storey</strong></td>
+              <td>12 storeys built, 11 sanctioned; <span class="mono">2,699.6 m³</span> unregistered; scan confidence 0.62</td>
+              <td>The paper record agrees with itself. Only an independent measurement of the built form contradicts it.</td>
+            </tr>
+            <tr>
+              <td><strong>Overlapping ownership</strong></td>
+              <td>Two flats share <span class="mono">29.9 m³</span> over <span class="mono">9.96 m²</span> of footprint across 3.0 m of height</td>
+              <td>Both flats sit inside the same building outline. In plan they do not overlap at all.</td>
+            </tr>
+            <tr>
+              <td><strong>Clearance breach</strong></td>
+              <td>Storm drain intersects a basement raft; clearance <span class="mono">0.00 m</span>, rule requires <span class="mono">1.00 m</span></td>
+              <td>The drain and the basement occupy the same plan coordinates. On a flat map they are simply the same place.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <h4>Say this precisely</h4>
+        <p>
+          "Our building extraction has an F1 of 1.00 and a mean IoU of 0.984 against
+          known ground truth, with a height RMSE of five and a half centimetres." That
+          sentence is worth more than any adjective, and it is true.
+        </p>
+      </div>
+    </section>
+
+    <!-- ================= 11 ================= -->
+    <section id="roles">
+      <div class="sec-head">
+        <div class="sec-num">11 &middot; Team</div>
+        <h2>Who owns what</h2>
+        <p class="lede">Fill in the names. Every module needs someone who can answer two minutes deep on it.</p>
+      </div>
+
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Area</th><th>Must be able to explain</th><th>Owner</th></tr></thead>
+          <tbody>
+            <tr><td>Problem framing &amp; pitch</td><td>The column diagram, the three defects, why 2D fails — without notes</td><td class="mono">&mdash;</td></tr>
+            <tr><td>3D-ULPIN design</td><td>Every field, the check character, the stability decision, collision resistance</td><td class="mono">&mdash;</td></tr>
+            <tr><td>Point-cloud pipeline</td><td>SMRF, DBSCAN, alpha shapes, why not deep learning</td><td class="mono">&mdash;</td></tr>
+            <tr><td>Storey segmentation</td><td>Why facades are periodic and how autocorrelation recovers the pitch</td><td class="mono">&mdash;</td></tr>
+            <tr><td>Validation rules</td><td>All ten, and why stacked flats must <em>not</em> be flagged</td><td class="mono">&mdash;</td></tr>
+            <tr><td>Viewer &amp; API</td><td>Driving the demo smoothly; the column query; the export formats</td><td class="mono">&mdash;</td></tr>
+            <tr><td>Deployment story</td><td>Inputs, who supplies them, SVAMITVA/DILRMP context, the pilot plan</td><td class="mono">&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Before the finals, in priority order</h3>
+      <ol>
+        <li><strong>Get one real LAS tile through the pipeline.</strong> Removes our single biggest objection. Highest value per hour of any remaining work.</li>
+        <li><strong>Talk to one land-records or municipal GIS officer.</strong> Twenty minutes, quotable by name, converts risk 3 into a strength.</li>
+        <li><strong>Run a larger extent and quote the timing.</strong> Turns the scale answer from a promise into a measurement.</li>
+        <li><strong>Record a fallback demo video.</strong> Insurance against risk 6.</li>
+        <li><strong>Rehearse cross-module questions.</strong> Each person answers on someone else's area.</li>
+      </ol>
+    </section>
+
+    <footer class="foot">
+      <p>
+        Bhoomi3D — internal team brief. Every figure quoted here is regenerated by
+        <code>scripts/build_demo.py</code> and asserted in the test suite; if a number
+        changes after a code change, this document is out of date, not the software.
+      </p>
+      <p>
+        Deeper reference: <code>README.md</code> for the overview,
+        <code>docs/ULPIN.md</code> for the identifier specification,
+        <code>docs/ARCHITECTURE.md</code> for design decisions and where the
+        extension seams are.
+      </p>
+    </footer>
+
+  </main>
+</div>

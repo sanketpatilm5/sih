@@ -1,0 +1,15 @@
+# --- core (required) ---
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+numpy==2.2.1
+scipy==1.15.0
+shapely==2.0.6
+
+# --- geospatial IO (optional but recommended) ---
+laspy[lazrs]==2.5.4      # LAS / LAZ point clouds
+rasterio==1.4.3          # GeoTIFF DEM / DSM / orthophoto
+pillow==11.1.0           # PNG/JPG imagery fallback
+
+# --- optional deep-learning backend for building extraction ---
+# onnxruntime==1.20.1

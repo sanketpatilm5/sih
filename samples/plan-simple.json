@@ -1,0 +1,209 @@
+{
+  "site": {
+    "name": "Demo Plot - Shivajinagar",
+    "origin": {
+      "lat": 18.52043,
+      "lon": 73.856744
+    },
+    "jurisdiction": {
+      "state": "27",
+      "district": "025",
+      "tehsil": "004",
+      "state_name": "Maharashtra",
+      "district_name": "Pune",
+      "tehsil_name": "Pune City"
+    }
+  },
+  "parcels": [
+    {
+      "id": "P-01",
+      "owner": "Sharda Co-op Housing Society",
+      "survey_no": "SN-118/2",
+      "land_use": "residential",
+      "boundary": [
+        [
+          0,
+          0
+        ],
+        [
+          44,
+          0
+        ],
+        [
+          44,
+          32
+        ],
+        [
+          0,
+          32
+        ]
+      ]
+    }
+  ],
+  "buildings": [
+    {
+      "id": "B-01",
+      "name": "Sharda Apartments",
+      "parcel": "P-01",
+      "ground_level": 0.0,
+      "floors": [
+        {
+          "level": -1,
+          "height": 3.0,
+          "use": "parking",
+          "units": [
+            {
+              "name": "PARK-B1",
+              "kind": "parking",
+              "owner": "Society common",
+              "boundary": [
+                [
+                  8,
+                  6
+                ],
+                [
+                  36,
+                  6
+                ],
+                [
+                  36,
+                  26
+                ],
+                [
+                  8,
+                  26
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "level": 0,
+          "height": 3.6,
+          "use": "commercial",
+          "units": [
+            {
+              "name": "SHOP-01",
+              "kind": "shop",
+              "owner": "Kirana Stores",
+              "boundary": [
+                [
+                  8,
+                  6
+                ],
+                [
+                  21,
+                  6
+                ],
+                [
+                  21,
+                  26
+                ],
+                [
+                  8,
+                  26
+                ]
+              ]
+            },
+            {
+              "name": "SHOP-02",
+              "kind": "shop",
+              "owner": "Anand Medical",
+              "boundary": [
+                [
+                  23,
+                  6
+                ],
+                [
+                  36,
+                  6
+                ],
+                [
+                  36,
+                  26
+                ],
+                [
+                  23,
+                  26
+                ]
+              ]
+            }
+          ]
+        },
+        {
+          "level": 1,
+          "repeat_to": 3,
+          "height": 3.0,
+          "use": "residential",
+          "units": [
+            {
+              "name": "FLAT-{n}01",
+              "owner": "Owner of flat {n}01",
+              "boundary": [
+                [
+                  8,
+                  6
+                ],
+                [
+                  21,
+                  6
+                ],
+                [
+                  21,
+                  26
+                ],
+                [
+                  8,
+                  26
+                ]
+              ]
+            },
+            {
+              "name": "FLAT-{n}02",
+              "owner": "Owner of flat {n}02",
+              "boundary": [
+                [
+                  23,
+                  6
+                ],
+                [
+                  36,
+                  6
+                ],
+                [
+                  36,
+                  26
+                ],
+                [
+                  23,
+                  26
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "infrastructure": [
+    {
+      "id": "INF-WATER-01",
+      "name": "300 mm water main",
+      "kind": "water",
+      "owner": "Pune Municipal Corporation - Water Supply",
+      "alignment": [
+        [
+          -6,
+          29
+        ],
+        [
+          50,
+          29
+        ]
+      ],
+      "width": 0.9,
+      "height": 0.9,
+      "depth": 1.8
+    }
+  ]
+}
