@@ -18,17 +18,18 @@ import { vec3 } from './math.js';
 // about. Provenance is shown separately, in the inspector, rather than by hue.
 const STYLE = {
   parcel:         { color: [0.36, 0.55, 0.38, 0.55], layer: 'parcels',  sortKey: 1 },
-  building:       { color: [0.60, 0.63, 0.70, 0.20], layer: 'buildings', sortKey: 3 },
-  storey:         { color: [0.45, 0.60, 0.82, 0.30], layer: 'storeys',  sortKey: 4 },
-  unit:           { color: [0.85, 0.72, 0.45, 1.00], layer: 'units',    sortKey: 6 },
+  // Opaque-enough envelopes so facades read as walls, not wireframes.
+  building:       { color: [0.72, 0.74, 0.78, 0.42], layer: 'buildings', sortKey: 3, facade: true },
+  storey:         { color: [0.58, 0.66, 0.78, 0.38], layer: 'storeys',  sortKey: 4, facade: true },
+  unit:           { color: [0.90, 0.78, 0.52, 1.00], layer: 'units',    sortKey: 6, facade: true },
   infrastructure: { color: [0.90, 0.36, 0.32, 0.95], layer: 'infra',    sortKey: 5 },
   air_rights:     { color: [0.42, 0.78, 0.90, 0.12], layer: 'air',      sortKey: 2 },
 };
 const UNIT_USE_COLOR = {
-  parking:      [0.55, 0.57, 0.62, 1.0],
-  commercial:   [0.52, 0.70, 0.88, 1.0],
-  shop:         [0.52, 0.70, 0.88, 1.0],
-  residential:  [0.88, 0.74, 0.46, 1.0],
+  parking:      [0.52, 0.54, 0.58, 1.0],
+  commercial:   [0.48, 0.66, 0.82, 1.0],
+  shop:         [0.48, 0.66, 0.82, 1.0],
+  residential:  [0.90, 0.78, 0.52, 1.0],
   unsurveyed:   [0.70, 0.45, 0.75, 1.0],
 };
 const INFRA_COLOR = {
@@ -97,7 +98,7 @@ function buildScene() {
   const groups = new Map();
   const push = (key, style) => {
     if (!groups.has(key)) {
-      groups.set(key, { mesh: { positions: [], normals: [], ids: [] }, style });
+      groups.set(key, { mesh: { positions: [], normals: [], ids: [], uvs: [] }, style });
     }
     return groups.get(key);
   };
@@ -121,7 +122,33 @@ function buildScene() {
 
   for (const { mesh, style } of groups.values()) {
     renderer.addBatch(mesh, {
-      color: style.color, layer: style.layer, sortKey: style.sortKey,
+      color: style.color,
+      layer: style.layer,
+      sortKey: style.sortKey,
+      facade: !!style.facade,
+    });
+  }
+
+  // Soft silhouette edges so footprints and storey stacks read as architecture
+  // rather than floating colour blocks.
+  const buildingEdges = [];
+  const unitEdges = [];
+  for (const obj of state.objects) {
+    if (!obj.geometry) continue;
+    if (obj.kind !== 'building' && obj.kind !== 'unit') continue;
+    const dest = obj.kind === 'unit' ? unitEdges : buildingEdges;
+    const parts = obj.geometry.type === 'CompositeSolid'
+      ? obj.geometry.parts : [obj.geometry];
+    for (const p of parts) buildPrismEdges(p.rings, p.z_min, p.z_max, dest);
+  }
+  if (buildingEdges.length) {
+    renderer.addLines(buildingEdges, {
+      color: [0.10, 0.12, 0.16, 0.65], layer: 'buildings',
+    });
+  }
+  if (unitEdges.length) {
+    renderer.addLines(unitEdges, {
+      color: [0.18, 0.14, 0.08, 0.40], layer: 'units',
     });
   }
 
@@ -450,6 +477,33 @@ function showTab(name) {
   for (const p of document.querySelectorAll('.panel')) {
     p.classList.toggle('active', p.dataset.panel === name);
   }
+  const panel = document.querySelector(`.panel[data-panel="${name}"]`);
+  if (panel) {
+    panel.classList.remove('flash');
+    // reflow so the animation can replay when jumping from the dock / topbar
+    void panel.offsetWidth;
+    panel.classList.add('flash');
+  }
+}
+
+function openFeature(name) {
+  showTab(name);
+  const dock = $('#featureDock');
+  if (dock) dock.classList.add('hidden');
+  // nudge the right rail into view on narrow layouts
+  document.querySelector('.right')?.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function wireFeatureEntry() {
+  $('#heroLocate')?.addEventListener('click', () => openFeature('locate'));
+  $('#heroPlan')?.addEventListener('click', () => openFeature('plan'));
+  for (const card of document.querySelectorAll('.feature-card[data-open]')) {
+    card.addEventListener('click', () => openFeature(card.dataset.open));
+  }
+  $('#dockDismiss')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('#featureDock')?.classList.add('hidden');
+  });
 }
 
 function renderValidation(report) {
@@ -786,6 +840,7 @@ async function wireLocate() {
     if (!value) { errBox.textContent = 'Paste a ULPIN first.'; return; }
     errBox.textContent = '';
     runBtn.disabled = true;
+    $('#featureDock')?.classList.add('hidden');
     setStatus('Locating…', 'busy');
     try {
       await locator.run(value);
@@ -917,6 +972,10 @@ function wirePlanUpload() {
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files && fileInput.files[0];
     if (!file) return;
+    await loadFile(file);
+  });
+
+  const loadFile = async (file) => {
     nameLabel.textContent = file.name;
     try {
       loadedPlan = JSON.parse(await file.text());
@@ -928,7 +987,25 @@ function wirePlanUpload() {
     }
     previewLevel = 0;
     await renderPreview();
-  });
+  };
+
+  // Drag-and-drop onto the dropzone so the upload step is obvious.
+  const drop = fileInput.closest('.file-btn');
+  if (drop) {
+    for (const ev of ['dragenter', 'dragover']) {
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add('dragover');
+      });
+    }
+    drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+    drop.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      drop.classList.remove('dragover');
+      const file = e.dataTransfer?.files?.[0];
+      if (file) await loadFile(file);
+    });
+  }
 
   buildBtn.addEventListener('click', async () => {
     if (!loadedPlan) return;
@@ -1169,6 +1246,21 @@ async function loadAll() {
   camera.frame(site.extent);
   renderer.explodeRef = (site.extent.z_min + site.extent.z_max) / 2;
 
+  // Match facade window bands to the site's typical storey pitch when we can
+  // measure it from registered slabs.
+  const storeys = state.objects.filter((o) => o.kind === 'storey' && o.geometry);
+  if (storeys.length) {
+    const heights = storeys.map((o) => {
+      const parts = o.geometry.type === 'CompositeSolid'
+        ? o.geometry.parts : [o.geometry];
+      return Math.max(...parts.map((p) => p.z_max - p.z_min));
+    }).filter((h) => h > 2.2 && h < 5.5);
+    if (heights.length) {
+      heights.sort((a, b) => a - b);
+      renderer.floorHeight = heights[Math.floor(heights.length / 2)];
+    }
+  }
+
   renderValidation(validation);
   renderMetrics(metrics, pipeline);
   renderTree(tree);
@@ -1189,6 +1281,7 @@ function frame() {
       selectedId: state.selected
         ? (state.idToIndex.get(state.selected.object_id) ?? -1) : -1,
       hoverId: state.hover,
+      lightDir: [0.55, 0.35, 0.76],
     });
     state.needsRedraw = moving;
   }
@@ -1218,6 +1311,7 @@ async function main() {
   wirePicking();
   wirePipelineRun();
   wirePlanUpload();
+  wireFeatureEntry();
   window.addEventListener('resize', () => { state.needsRedraw = true; });
 
   try {

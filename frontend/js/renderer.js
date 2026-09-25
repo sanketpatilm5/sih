@@ -55,6 +55,8 @@ uniform float uSectionZ;     // hide everything above this height (cutaway)
 uniform float uOpacity;
 uniform sampler2D uTexture;
 uniform int uTextured;       // 1 when this batch carries aerial imagery
+uniform int uFacade;         // 1 for built volumes: draw storeys and windows
+uniform float uFloorH;       // storey pitch the facade pattern repeats on
 
 out vec4 fragColor;
 
@@ -91,7 +93,57 @@ void main() {
     return;
   }
 
-  vec3 base = albedo * (0.34 + 0.52 * diff + 0.20 * hemi);
+  vec3 base = albedo * (0.30 + 0.55 * diff + 0.22 * hemi);
+
+  // A building reads as a building because of its floors and its windows, not
+  // because of its outline. Both are drawn from world coordinates, so the
+  // pattern stays fixed to the structure as the camera moves and lines up
+  // across neighbouring volumes of the same block.
+  if (uFacade == 1) {
+    float wall = 1.0 - abs(n.z);
+    float roof = smoothstep(0.55, 0.92, abs(n.z));
+
+    if (wall > 0.28) {
+      // One window per storey, centred on this wall face (face U is 0→1).
+      float fz = fract(vWorld.z / uFloorH);
+      float fu = vUV.x;
+
+      float band = smoothstep(0.20, 0.30, fz) * (1.0 - smoothstep(0.68, 0.80, fz));
+      float bay  = smoothstep(0.28, 0.36, fu) * (1.0 - smoothstep(0.64, 0.72, fu));
+      float win  = band * bay * wall;
+
+      // Single pane — no tiled 2×2 mullion grid
+      vec3 glass = vec3(0.10, 0.16, 0.24) + vec3(0.18, 0.28, 0.38) * diff;
+      glass += vec3(0.45, 0.55, 0.62) * pow(max(diff, 0.0), 4.0) * 0.35;
+      base = mix(base, glass, 0.78 * win);
+
+      // Thin frame around the one opening
+      float frameU = smoothstep(0.24, 0.28, fu) * (1.0 - smoothstep(0.72, 0.76, fu));
+      float frameV = smoothstep(0.16, 0.20, fz) * (1.0 - smoothstep(0.80, 0.84, fz));
+      float frame = max(frameU * band, frameV * bay) * wall * (1.0 - win);
+      base = mix(base, albedo * 0.55, 0.65 * frame);
+
+      // Floor slab / balcony ledge under each storey
+      float slab = 1.0 - smoothstep(0.0, 0.07, fz);
+      float ledge = smoothstep(0.88, 0.94, fz);
+      base *= mix(1.0, 0.72, slab * wall);
+      base = mix(base, albedo * 0.82, 0.55 * ledge * wall);
+
+      // Side piers left and right of the single window
+      float pier = 1.0 - smoothstep(0.0, 0.08, min(fu, 1.0 - fu));
+      base *= mix(1.0, 0.90, pier * wall * (1.0 - win));
+    }
+
+    // Roof deck: warmer, slightly mottled
+    if (roof > 0.4 && n.z > 0.0) {
+      float mott = fract(sin(dot(vWorld.xy, vec2(12.9898, 78.233))) * 43758.5453);
+      base = mix(base, albedo * (0.78 + 0.12 * mott), 0.55 * roof);
+      base *= mix(1.0, 0.88, roof);
+    }
+
+    // Contact shadow near grade so volumes sit on the ground
+    base *= mix(0.70, 1.0, clamp((vWorld.z + 1.5) / 9.0, 0.0, 1.0));
+  }
 
   float a = uColor.a * uOpacity;
   // Guard on >= 0: unpickable geometry (the terrain) carries a negative id, and
@@ -105,6 +157,27 @@ void main() {
     a = min(1.0, a + 0.22);
   }
   fragColor = vec4(base, a);
+}`;
+
+const SKY_VS = `#version 300 es
+precision highp float;
+out vec2 vUv;
+void main() {
+  // fullscreen triangle, no buffers needed
+  vec2 p = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));
+  vUv = p;
+  gl_Position = vec4(p * 2.0 - 1.0, 0.9999, 1.0);
+}`;
+
+const SKY_FS = `#version 300 es
+precision highp float;
+in vec2 vUv;
+uniform vec3 uTop;
+uniform vec3 uBottom;
+out vec4 fragColor;
+void main() {
+  float t = clamp(vUv.y, 0.0, 1.0);
+  fragColor = vec4(mix(uBottom, uTop, pow(t, 0.85)), 1.0);
 }`;
 
 const LINE_VS = `#version 300 es
@@ -157,6 +230,10 @@ export class Renderer {
 
     this.solidProg = program(gl, SOLID_VS, SOLID_FS);
     this.lineProg = program(gl, LINE_VS, LINE_FS);
+    this.skyProg = program(gl, SKY_VS, SKY_FS);
+    this.skyTop = [0.045, 0.085, 0.145];
+    this.skyBottom = [0.145, 0.185, 0.230];
+    this.floorHeight = 3.1;
     this.batches = [];
     this.lineBatches = [];
     this.explode = 0;
@@ -166,9 +243,11 @@ export class Renderer {
     this.solidU = this._uniforms(this.solidProg, [
       'uViewProj', 'uColor', 'uLightDir', 'uSelectedId', 'uHoverId',
       'uPickMode', 'uSectionZ', 'uOpacity', 'uExplode', 'uExplodeRef',
-      'uTexture', 'uTextured']);
+      'uTexture', 'uTextured', 'uFacade', 'uFloorH']);
     this.lineU = this._uniforms(this.lineProg, [
       'uViewProj', 'uColor', 'uExplode', 'uExplodeRef']);
+    this.skyU = this._uniforms(this.skyProg, ['uTop', 'uBottom']);
+    this.emptyVao = gl.createVertexArray();
 
     this._initPickTarget();
     gl.enable(gl.DEPTH_TEST);
@@ -263,6 +342,7 @@ export class Renderer {
       pickable: opts.pickable !== false,
       visible: opts.visible !== false,
       depthWrite: opts.depthWrite !== false,
+      facade: opts.facade === true,
       sortKey: opts.sortKey || 0,
       buffers: [pos, nrm, ids, uvBuf].filter(Boolean),
     };
@@ -339,6 +419,7 @@ export class Renderer {
     gl.viewport(0, 0, w, h);
     gl.clearColor(background[0], background[1], background[2], 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    this._drawSky();
 
     gl.useProgram(this.solidProg);
     const u = this.solidU;
@@ -350,6 +431,7 @@ export class Renderer {
     gl.uniform1f(u.uSectionZ, this.sectionZ);
     gl.uniform1f(u.uExplode, this.explode);
     gl.uniform1f(u.uExplodeRef, this.explodeRef);
+    gl.uniform1f(u.uFloorH, this.floorHeight);
 
     const visible = this.batches.filter((b) => b.visible);
     const opaque = visible.filter((b) => b.color[3] * b.opacity >= 0.999);
@@ -385,10 +467,25 @@ export class Renderer {
     gl.disable(gl.BLEND);
   }
 
+  _drawSky() {
+    const gl = this.gl;
+    gl.useProgram(this.skyProg);
+    gl.uniform3fv(this.skyU.uTop, this.skyTop);
+    gl.uniform3fv(this.skyU.uBottom, this.skyBottom);
+    gl.disable(gl.DEPTH_TEST);
+    gl.depthMask(false);
+    gl.bindVertexArray(this.emptyVao);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.bindVertexArray(null);
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+  }
+
   _drawBatch(b, u) {
     const gl = this.gl;
     gl.uniform4fv(u.uColor, b.color);
     gl.uniform1f(u.uOpacity, b.opacity);
+    gl.uniform1i(u.uFacade, b.facade ? 1 : 0);
     if (b.texture) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, b.texture);

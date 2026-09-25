@@ -28,6 +28,23 @@
     <div id="siteName" class="site-name">—</div>
     <div id="siteStats" class="site-stats"></div>
   </div>
+
+  <div class="hero-actions">
+    <button type="button" id="heroLocate" class="hero-btn locate" title="Locate a 3D-ULPIN from orbit">
+      <span class="hb-icon" aria-hidden="true">◎</span>
+      <span class="hb-copy">
+        <strong>Locate ULPIN</strong>
+        <em>Orbit → unit</em>
+      </span>
+    </button>
+    <button type="button" id="heroPlan" class="hero-btn plan" title="Upload a 2D building plan">
+      <span class="hb-icon" aria-hidden="true">▦</span>
+      <span class="hb-copy">
+        <strong>2D → 3D</strong>
+        <em>Upload a plan</em>
+      </span>
+    </button>
+  </div>
 </header>
 
 <main class="layout">
@@ -88,6 +105,25 @@
     <canvas id="gl"></canvas>
     <canvas id="locateOverlay" class="locate-overlay"></canvas>
     <div id="hoverLabel" class="hover-label"></div>
+
+    <div id="featureDock" class="feature-dock">
+      <button type="button" id="dockDismiss" class="dock-dismiss" title="Hide tips">×</button>
+      <button type="button" class="feature-card locate" data-open="locate">
+        <div class="fc-glow" aria-hidden="true"></div>
+        <div class="fc-kicker">Live demo</div>
+        <div class="fc-title">Locate a ULPIN</div>
+        <p class="fc-body">Paste an identifier and drop from orbit to the flat — globe, admin codes, geohash, then the unit itself.</p>
+        <span class="fc-cta">Open Locate →</span>
+      </button>
+      <button type="button" class="feature-card plan" data-open="plan">
+        <div class="fc-glow" aria-hidden="true"></div>
+        <div class="fc-kicker">Municipal path</div>
+        <div class="fc-title">Upload a 2D layout</div>
+        <p class="fc-body">Drop an approved floor plan. Every unit on every floor becomes a 3D volume with its own ULPIN — no drone survey.</p>
+        <span class="fc-cta">Open 2D → 3D →</span>
+      </button>
+    </div>
+
     <div class="hint">
       drag to orbit · shift-drag or right-drag to pan · wheel to zoom · click to select
     </div>
@@ -96,38 +132,40 @@
 
   <aside class="right">
     <nav class="tabs">
-      <button class="tab active" data-tab="inspector">Inspector</button>
+      <button class="tab featured locate" data-tab="locate">Locate</button>
+      <button class="tab featured plan" data-tab="plan">2D&nbsp;&rarr;&nbsp;3D</button>
+      <button class="tab" data-tab="inspector">Inspector</button>
       <button class="tab" data-tab="validation">Validation</button>
       <button class="tab" data-tab="metrics">Accuracy</button>
       <button class="tab" data-tab="tree">Register</button>
       <button class="tab" data-tab="column">Column</button>
-      <button class="tab" data-tab="plan">2D&nbsp;&rarr;&nbsp;3D</button>
-      <button class="tab" data-tab="locate">Locate</button>
     </nav>
-    <div class="panel active" data-panel="inspector"><div id="inspector"></div></div>
+    <div class="panel" data-panel="inspector"><div id="inspector"></div></div>
     <div class="panel" data-panel="validation"><div id="validationPanel"></div></div>
     <div class="panel" data-panel="metrics"><div id="metricsPanel"></div></div>
     <div class="panel" data-panel="tree"><div id="treePanel"></div></div>
-    <div class="panel" data-panel="locate">
-      <div id="locatePanel">
-        <h3>Locate a ULPIN from orbit</h3>
-        <p class="muted">
-          Paste an identifier and watch it resolve &mdash; globe, administrative
-          codes, then ten geohash subdivisions down to the flat itself. Every
-          stage of the zoom is one field of the number, decoded live. No
-          database lookup until the very last step.
-        </p>
+    <div class="panel active" data-panel="locate">
+      <div id="locatePanel" class="feature-panel">
+        <div class="feature-hero locate">
+          <div class="fh-badge">Signature demo</div>
+          <h3>Locate a ULPIN from orbit</h3>
+          <p>
+            Paste an identifier and watch it resolve — globe, administrative
+            codes, then ten geohash subdivisions down to the flat itself. Every
+            stage of the zoom is one field of the number, decoded live.
+          </p>
+        </div>
 
         <label class="locate-label" for="locateInput">3D-ULPIN</label>
         <input id="locateInput" class="locate-input" type="text" spellcheck="false"
                autocomplete="off" placeholder="27-025-004-tek92et7bx-B04-00DY-5">
         <label class="locate-label" for="locateProvider">Basemap</label>
         <select id="locateProvider" class="locate-select">
-          <option value="osm">OpenStreetMap &mdash; street map</option>
-          <option value="offline">Offline &mdash; bundled borders only</option>
+          <option value="osm">OpenStreetMap — street map</option>
+          <option value="offline">Offline — bundled borders only</option>
         </select>
         <div class="tile-hint" id="providerHint">Needs internet. Offline always works.</div>
-        <button id="locateRun" class="wide primary">Locate</button>
+        <button id="locateRun" class="wide primary locate-go">Locate from orbit</button>
         <div id="locateError" class="locate-error"></div>
 
         <h4 class="locate-sub">Quick pick</h4>
@@ -135,7 +173,7 @@
 
         <div id="locateStages" class="locate-stages">
           <div class="lst" data-stage="globe"><b>Globe</b><span>position from the number</span></div>
-          <div class="lst" data-stage="admin"><b>Admin codes</b><span>state &middot; district &middot; tehsil</span></div>
+          <div class="lst" data-stage="admin"><b>Admin codes</b><span>state · district · tehsil</span></div>
           <div class="lst" data-stage="geohash"><b>Geohash</b><span>10 subdivisions</span></div>
           <div class="lst" data-stage="plan"><b>Site</b><span>2D plan view</span></div>
           <div class="lst" data-stage="rise"><b>Rise</b><span>plan becomes solids</span></div>
@@ -144,13 +182,16 @@
       </div>
     </div>
     <div class="panel" data-panel="plan">
-      <div id="planPanel">
-        <h3>Turn a 2D plan into a 3D register</h3>
-        <p class="muted">
-          Upload an approved building plan as coordinates and every unit on
-          every floor becomes a 3D property volume with its own ULPIN. No drone
-          survey needed &mdash; this is the path a municipal office can run today.
-        </p>
+      <div id="planPanel" class="feature-panel">
+        <div class="feature-hero plan">
+          <div class="fh-badge">Municipal path</div>
+          <h3>Turn a 2D plan into a 3D register</h3>
+          <p>
+            Upload an approved building plan as coordinates and every unit on
+            every floor becomes a 3D property volume with its own ULPIN. No drone
+            survey needed — this is the path a municipal office can run today.
+          </p>
+        </div>
 
         <div class="plan-steps">
           <div class="plan-step">
@@ -160,21 +201,24 @@
               <p class="muted">Download one, open it in any text editor, change the
               corner coordinates, owners and floor heights to match your building.</p>
               <div class="plan-btns">
-                <button id="dlSimple" class="small">Simple plot &middot; 4 storeys</button>
-                <button id="dlSociety" class="small">Housing society &middot; 13 storeys</button>
+                <button id="dlSimple" class="small">Simple plot · 4 storeys</button>
+                <button id="dlSociety" class="small">Housing society · 13 storeys</button>
               </div>
             </div>
           </div>
 
-          <div class="plan-step">
+          <div class="plan-step highlight">
             <span class="ps-n">2</span>
             <div>
-              <b>Check the drawing</b>
-              <p class="muted">Pick your edited file. We draw each floor back so you
-              can see the shapes are right before building anything.</p>
-              <label class="file-btn">
+              <b>Upload your layout</b>
+              <p class="muted">Drop an edited plan file. We draw each floor back so you
+              can check the shapes before building anything.</p>
+              <label class="file-btn dropzone">
                 <input type="file" id="planFile" accept=".json,application/json">
-                <span>Choose a plan file&hellip;</span>
+                <span class="dz-inner">
+                  <strong>Drop a plan JSON here</strong>
+                  <em>or click to choose a file</em>
+                </span>
               </label>
               <div id="planName" class="plan-file-name"></div>
             </div>

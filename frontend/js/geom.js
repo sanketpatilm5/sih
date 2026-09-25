@@ -133,10 +133,13 @@ export function buildPrism(rings, zMin, zMax, out, objectId) {
   const { verts, indices } = triangulate(rings);
   if (!verts.length) return;
 
-  const push = (x, y, z, nx, ny, nz) => {
+  if (!out.uvs) out.uvs = [];
+
+  const push = (x, y, z, nx, ny, nz, u = 0, v = 0) => {
     out.positions.push(x, y, z);
     out.normals.push(nx, ny, nz);
     out.ids.push(objectId);
+    out.uvs.push(u, v);
   };
 
   // --- caps -------------------------------------------------------------
@@ -155,6 +158,8 @@ export function buildPrism(rings, zMin, zMax, out, objectId) {
   // --- walls ------------------------------------------------------------
   // Every ring contributes walls, including holes: the inside face of a
   // courtyard is as much a boundary of the volume as the outside face.
+  // U runs 0→1 across each wall face so the facade shader can place exactly
+  // one window per face per floor (instead of tiling many bays in world space).
   for (const ringRaw of rings) {
     const ring = ringRaw.slice();
     if (ring.length > 1) {
@@ -171,13 +176,13 @@ export function buildPrism(rings, zMin, zMax, out, objectId) {
       if (len < 1e-9) continue;
       const nx = dy / len, ny = -dx / len;
 
-      push(p[0], p[1], zMin, nx, ny, 0);
-      push(q[0], q[1], zMin, nx, ny, 0);
-      push(q[0], q[1], zMax, nx, ny, 0);
+      push(p[0], p[1], zMin, nx, ny, 0, 0, 0);
+      push(q[0], q[1], zMin, nx, ny, 0, 1, 0);
+      push(q[0], q[1], zMax, nx, ny, 0, 1, 1);
 
-      push(p[0], p[1], zMin, nx, ny, 0);
-      push(q[0], q[1], zMax, nx, ny, 0);
-      push(p[0], p[1], zMax, nx, ny, 0);
+      push(p[0], p[1], zMin, nx, ny, 0, 0, 0);
+      push(q[0], q[1], zMax, nx, ny, 0, 1, 1);
+      push(p[0], p[1], zMax, nx, ny, 0, 0, 1);
     }
   }
 }
@@ -197,6 +202,165 @@ export function buildPrismEdges(rings, zMin, zMax, out) {
       out.push(p[0], p[1], zMin, q[0], q[1], zMin);
       out.push(p[0], p[1], zMin, p[0], p[1], zMax);
     }
+  }
+}
+
+// --- apartment exterior detailing ----------------------------------------------
+// Bare cadastral prisms read as shipping containers. These helpers hang real
+// balcony slabs, railings and a roof parapet off the envelope so a mid-rise
+// housing block looks like the flats people actually live in.
+
+function _closedRing(ringRaw) {
+  const ring = ringRaw.slice();
+  if (ring.length > 1) {
+    const a = ring[0], b = ring[ring.length - 1];
+    if (Math.abs(a[0] - b[0]) < 1e-9 && Math.abs(a[1] - b[1]) < 1e-9) ring.pop();
+  }
+  return ring;
+}
+
+function _pushTri(out, objectId, ax, ay, az, bx, by, bz, cx, cy, cz) {
+  const ux = bx - ax, uy = by - ay, uz = bz - az;
+  const vx = cx - ax, vy = cy - ay, vz = cz - az;
+  let nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+  const l = Math.hypot(nx, ny, nz) || 1;
+  nx /= l; ny /= l; nz /= l;
+  out.positions.push(ax, ay, az, bx, by, bz, cx, cy, cz);
+  out.normals.push(nx, ny, nz, nx, ny, nz, nx, ny, nz);
+  out.ids.push(objectId, objectId, objectId);
+}
+
+function _pushQuad(out, objectId, a, b, c, d) {
+  _pushTri(out, objectId, a[0], a[1], a[2], b[0], b[1], b[2], c[0], c[1], c[2]);
+  _pushTri(out, objectId, a[0], a[1], a[2], c[0], c[1], c[2], d[0], d[1], d[2]);
+}
+
+/** Axis-aligned-ish box from four XY corners and a z range. */
+function _pushSlab(out, objectId, corners, z0, z1) {
+  const [p0, p1, p2, p3] = corners;
+  // top
+  _pushQuad(out, objectId,
+    [p0[0], p0[1], z1], [p1[0], p1[1], z1], [p2[0], p2[1], z1], [p3[0], p3[1], z1]);
+  // bottom
+  _pushQuad(out, objectId,
+    [p0[0], p0[1], z0], [p3[0], p3[1], z0], [p2[0], p2[1], z0], [p1[0], p1[1], z0]);
+  // sides
+  _pushQuad(out, objectId,
+    [p0[0], p0[1], z0], [p1[0], p1[1], z0], [p1[0], p1[1], z1], [p0[0], p0[1], z1]);
+  _pushQuad(out, objectId,
+    [p1[0], p1[1], z0], [p2[0], p2[1], z0], [p2[0], p2[1], z1], [p1[0], p1[1], z1]);
+  _pushQuad(out, objectId,
+    [p2[0], p2[1], z0], [p3[0], p3[1], z0], [p3[0], p3[1], z1], [p2[0], p2[1], z1]);
+  _pushQuad(out, objectId,
+    [p3[0], p3[1], z0], [p0[0], p0[1], z0], [p0[0], p0[1], z1], [p3[0], p3[1], z1]);
+}
+
+function _outwardNormal(ring, i) {
+  const p = ring[i], q = ring[(i + 1) % ring.length];
+  const dx = q[0] - p[0], dy = q[1] - p[1];
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-6) return null;
+  // Exterior rings are CCW → outward is right of the edge direction
+  let nx = dy / len, ny = -dx / len;
+  // Flip if the normal points into the polygon (holes / CW rings)
+  const mid = [(p[0] + q[0]) / 2 + nx * 0.05, (p[1] + q[1]) / 2 + ny * 0.05];
+  if (_pointInRing(mid[0], mid[1], ring)) { nx = -nx; ny = -ny; }
+  return { nx, ny, len, p, q, ux: dx / len, uy: dy / len };
+}
+
+function _pointInRing(x, y, ring) {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    if (((yi > y) !== (yj > y)) &&
+        (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-12) + xi)) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+/**
+ * Balconies, railings and roof parapet only.
+ *
+ * The solid mass of the building is the unit volumes themselves (so 4 flats on
+ * a floor read as 4 distinct boxes). Drawing opaque floor plates + full walls
+ * here hid those flats and looked like an empty cage.
+ */
+export function buildBuildingExterior(rings, zMin, zMax, bodyOut, railOut, objectId, floorH = 3.1) {
+  if (!rings?.length) return;
+
+  const ring = _closedRing(rings[0]);
+  if (ring.length < 3) return;
+
+  const height = Math.max(zMax - zMin, floorH);
+  const nFloors = Math.max(1, Math.round(height / floorH));
+  const balcDepth = 1.45;
+  const balcT = 0.34;
+  const railH = 1.0;
+  const railT = 0.05;
+  const cornerInset = 0.2;
+
+  if (nFloors >= 2) {
+    for (let i = 0; i < ring.length; i++) {
+      const edge = _outwardNormal(ring, i);
+      if (!edge || edge.len < 4.5) continue;
+      const { nx, ny, len, p, ux, uy } = edge;
+
+      const a0 = cornerInset;
+      const a1 = len - cornerInset;
+      if (a1 - a0 < 2.5) continue;
+
+      const ax = p[0] + ux * a0, ay = p[1] + uy * a0;
+      const bx = p[0] + ux * a1, by = p[1] + uy * a1;
+      const ox = nx * balcDepth, oy = ny * balcDepth;
+      const foot = [
+        [ax, ay], [bx, by],
+        [bx + ox, by + oy], [ax + ox, ay + oy],
+      ];
+
+      for (let f = 1; f <= nFloors - 1; f++) {
+        const zTop = zMin + f * floorH;
+        if (zTop + 0.15 > zMax) continue;
+        _pushSlab(bodyOut, objectId, foot, zTop - balcT, zTop);
+
+        if (railOut) {
+          const c0 = foot[0], c1 = foot[1], c2 = foot[2], c3 = foot[3];
+          _pushSlab(railOut, objectId, [
+            [c3[0], c3[1]], [c2[0], c2[1]],
+            [c2[0] + nx * railT, c2[1] + ny * railT],
+            [c3[0] + nx * railT, c3[1] + ny * railT],
+          ], zTop, zTop + railH);
+
+          const side = 0.06;
+          _pushSlab(railOut, objectId, [
+            [c0[0], c0[1]], [c3[0], c3[1]],
+            [c3[0] + ux * side, c3[1] + uy * side],
+            [c0[0] + ux * side, c0[1] + uy * side],
+          ], zTop, zTop + railH * 0.9);
+          _pushSlab(railOut, objectId, [
+            [c1[0], c1[1]], [c2[0], c2[1]],
+            [c2[0] - ux * side, c2[1] - uy * side],
+            [c1[0] - ux * side, c1[1] - uy * side],
+          ], zTop, zTop + railH * 0.9);
+        }
+      }
+    }
+  }
+
+  // Thin roof parapet so the crown still reads
+  const parapetH = 0.55;
+  const parapetT = 0.22;
+  for (let i = 0; i < ring.length; i++) {
+    const edge = _outwardNormal(ring, i);
+    if (!edge) continue;
+    const { nx, ny, p, q } = edge;
+    _pushSlab(bodyOut, objectId, [
+      [p[0], p[1]], [q[0], q[1]],
+      [q[0] - nx * parapetT, q[1] - ny * parapetT],
+      [p[0] - nx * parapetT, p[1] - ny * parapetT],
+    ], zMax, zMax + parapetH);
   }
 }
 

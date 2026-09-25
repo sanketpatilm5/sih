@@ -1,0 +1,692 @@
+<title>Security, Users &amp; Cost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Serif:wght@500;600;700&display=swap">
+
+<style>
+  :root {
+    --bg:        #F1F3F0;
+    --panel:     #FFFFFF;
+    --panel-2:   #E9EDE8;
+    --line:      #D5DCD5;
+    --line-soft: #E3E8E2;
+    --ink:       #191E22;
+    --ink-soft:  #3B454A;
+    --muted:     #5F6B66;
+
+    --accent:      #9C6412;
+    --accent-ink:  #7A4E0B;
+    --accent-wash: #F3E7D2;
+
+    --good:      #2C6A4A;
+    --good-wash: #DEEBE2;
+    --risk:      #9E3129;
+    --risk-wash: #F6E3E1;
+    --warn:      #8A6108;
+    --warn-wash: #F6ECD6;
+
+    --sans:  "IBM Plex Sans", system-ui, -apple-system, Segoe UI, sans-serif;
+    --serif: "IBM Plex Serif", Georgia, "Times New Roman", serif;
+    --mono:  "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:        #12161A;
+      --panel:     #1A1F24;
+      --panel-2:   #222831;
+      --line:      #2C333A;
+      --line-soft: #242B31;
+      --ink:       #E6EAE6;
+      --ink-soft:  #C2CAC6;
+      --muted:     #8D9A94;
+
+      --accent:      #E0A33D;
+      --accent-ink:  #F0BE68;
+      --accent-wash: #33280F;
+
+      --good:      #6FBF95;
+      --good-wash: #17301F;
+      --risk:      #E67A72;
+      --risk-wash: #331C1A;
+      --warn:      #DFA83A;
+      --warn-wash: #302512;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg:        #12161A;
+    --panel:     #1A1F24;
+    --panel-2:   #222831;
+    --line:      #2C333A;
+    --line-soft: #242B31;
+    --ink:       #E6EAE6;
+    --ink-soft:  #C2CAC6;
+    --muted:     #8D9A94;
+
+    --accent:      #E0A33D;
+    --accent-ink:  #F0BE68;
+    --accent-wash: #33280F;
+
+    --good:      #6FBF95;
+    --good-wash: #17301F;
+    --risk:      #E67A72;
+    --risk-wash: #331C1A;
+    --warn:      #DFA83A;
+    --warn-wash: #302512;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 44px 24px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  h1, h2, h3 { font-family: var(--serif); text-wrap: balance; margin: 0; }
+  h1 { font-size: clamp(30px, 5vw, 44px); line-height: 1.1; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: clamp(19px, 2.6vw, 24px); line-height: 1.25; font-weight: 600; }
+  h3 { font-size: 15px; font-weight: 600; letter-spacing: .01em; }
+  p { margin: 0; }
+  b, strong { font-weight: 600; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .7rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+
+  /* --- masthead ------------------------------------------------------- */
+  .masthead { display: flex; flex-direction: column; gap: 14px; }
+  .masthead::after {
+    content: "";
+    height: 3px;
+    background: var(--accent);
+    width: 78px;
+  }
+  .standfirst {
+    font-family: var(--serif);
+    font-size: clamp(16px, 2.1vw, 19px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 26px;
+    font-family: var(--mono);
+    font-size: .72rem;
+    color: var(--muted);
+  }
+  .meta b { color: var(--ink-soft); font-weight: 500; }
+
+  /* --- headline answers ------------------------------------------------ */
+  .quick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+  .quick > div { background: var(--panel); padding: 18px 18px 20px; display: flex; flex-direction: column; gap: 9px; }
+  .quick .k { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; color: var(--accent-ink); }
+  .quick p { font-family: var(--serif); font-size: 16px; line-height: 1.4; }
+
+  /* --- question blocks ------------------------------------------------- */
+  .q { display: flex; flex-direction: column; gap: 20px; border-top: 2px solid var(--ink); padding-top: 22px; }
+  .q-head { display: flex; gap: 18px; align-items: baseline; }
+  .qnum {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent);
+    flex: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .q-head h2 { font-style: italic; }
+  .who { font-family: var(--mono); font-size: .74rem; color: var(--muted); margin-top: 6px; }
+  .who b { color: var(--ink-soft); font-weight: 500; }
+  .q > p, .q > ul { max-width: 68ch; }
+  .q ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .q li::marker { color: var(--accent); }
+
+  /* --- stage-direction panels ------------------------------------------ */
+  .say {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--accent);
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .say-label {
+    font-family: var(--mono);
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+  }
+  .say p { font-family: var(--serif); font-size: 16.5px; line-height: 1.55; }
+  .say .hindi { color: var(--ink-soft); font-style: italic; }
+
+  .note {
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14.2px;
+  }
+  .note h3 { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 600; }
+  .dont { background: var(--risk-wash); border-color: var(--risk); }
+  .dont h3 { color: var(--risk); }
+  .show { background: var(--panel-2); }
+  .show h3 { color: var(--muted); }
+  .show ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+
+  /* --- tables ----------------------------------------------------------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 13.6px; }
+  th, td { text-align: left; padding: 10px 13px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th {
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel-2);
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .code { font-family: var(--mono); font-size: .88em; color: var(--accent-ink); }
+  caption { caption-side: bottom; padding: 9px 13px; font-size: 12px; color: var(--muted); text-align: left; border-top: 1px solid var(--line-soft); }
+
+  /* --- pills ------------------------------------------------------------ */
+  .pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: .62rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border: 1px solid currentColor;
+    white-space: nowrap;
+  }
+  .pill.live { color: var(--good); background: var(--good-wash); }
+  .pill.dep  { color: var(--accent-ink); background: var(--accent-wash); }
+  .pill.no   { color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: var(--muted); align-items: center; }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  footer b { color: var(--ink-soft); }
+
+  @media (max-width: 700px) {
+    .quick { grid-template-columns: 1fr; }
+    .q-head { gap: 12px; }
+  }
+</style>
+
+<div class="sheet">
+
+  <header class="masthead">
+    <div class="eyebrow">Team Radiants &middot; PS 26011 &middot; Judge defence sheet</div>
+    <h1>Security, Users &amp; Cost</h1>
+    <p class="standfirst">
+      The three questions judges ask once the demo has landed. Each one has the
+      answer to say out loud, the follow-ups they push with, and the line we do
+      not cross.
+    </p>
+    <div class="meta">
+      <span><b>Grounded in</b> the running build &mdash; 143 objects, 143 ULPINs</span>
+      <span><b>Every claim</b> maps to something we can show on screen</span>
+    </div>
+  </header>
+
+  <div class="quick">
+    <div>
+      <span class="k">Q1 &middot; SECURITY</span>
+      <p>We made the record tamper-evident, not just the server.</p>
+    </div>
+    <div>
+      <span class="k">Q2 &middot; USERS</span>
+      <p>The department runs it, on its own machine. Three users, one of them technical.</p>
+    </div>
+    <div>
+      <span class="k">Q3 &middot; COST</span>
+      <p>It removes the biggest manual job and reuses data the government already pays for.</p>
+    </div>
+    <div>
+      <span class="k">Q4 &middot; STACK</span>
+      <p>Proven, boring pieces. The only thing we wrote ourselves is the part nobody sells.</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="pill live">Live</span> <span>working in the demo today</span>
+    <span class="pill dep">Deployment</span> <span>standard step when a department installs it</span>
+    <span class="pill no">Not built</span> <span>say so plainly if asked</span>
+  </div>
+
+  <!-- ===================== Q1 ===================== -->
+  <section class="q" id="security">
+    <div class="q-head">
+      <span class="qnum">Q1</span>
+      <div>
+        <h2>&ldquo;What are the security threats, and how will you protect this data?&rdquo;</h2>
+        <p class="who">Answered by <b>Sanket</b> &middot; technical</p>
+      </div>
+    </div>
+
+    <div class="say">
+      <div class="say-label">Say this &middot; 30 seconds</div>
+      <p>
+        A land record is a target because it decides who owns what. So we
+        protected the record itself, not only the server. Every identifier is
+        created once and never changes. Every boundary carries a digest, so if
+        the geometry is edited later, the system reports it. Every object says
+        where it came from &mdash; surveyed, approved plan, or inferred by AI
+        &mdash; and an AI-inferred boundary is never treated as legal proof.
+        And the whole register is validated, so the same cubic metres cannot be
+        given to two owners.
+      </p>
+      <p class="hindi">
+        Server ko lock karna easy hai. Record ko khud tamper-evident banana
+        &mdash; wahi asli kaam hai.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Threat</th><th>What stops it today</th><th>What a deployment adds</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The same space sold twice</td>
+            <td><span class="pill live">Live</span> <span class="code">VERT_OVERLAP</span> measures the shared volume and raises an error. The demo finds 29.89 m&sup3; between two flats.</td>
+            <td>Registration blocked until the finding is cleared</td>
+          </tr>
+          <tr>
+            <td>Identifier mis-typed at a counter</td>
+            <td><span class="pill live">Live</span> The check character rejects every single wrong character and every swap of two neighbouring ones</td>
+            <td>Same check at every entry point</td>
+          </tr>
+          <tr>
+            <td>A boundary quietly edited after registration</td>
+            <td><span class="pill live">Live</span> A BLAKE2s digest of the geometry is stored when the ULPIN is minted; drift is detected and reported, and the identifier never changes</td>
+            <td>Signed, append-only change log</td>
+          </tr>
+          <tr>
+            <td>An AI guess passed off as a legal boundary</td>
+            <td><span class="pill live">Live</span> Provenance on every object. <span class="code">extracted</span>, <span class="code">derived</span> and <span class="code">assumed</span> are not authoritative; <span class="code">PROVENANCE_REVIEW</span> lists everything awaiting ground verification</td>
+            <td>Surveyor sign-off before a record becomes final</td>
+          </tr>
+          <tr>
+            <td>Fake data pushed in through the plan upload</td>
+            <td><span class="pill live">Live</span> An upload carries its provenance and is re-validated like everything else &mdash; nothing bypasses the validator</td>
+            <td><span class="pill dep">Deployment</span> Login and role check: only the building-permission cell can upload</td>
+          </tr>
+          <tr>
+            <td>Data leaving the department</td>
+            <td><span class="pill live">Live</span> Runs on-premise and offline. No cloud, no API keys. No property data ever leaves the machine</td>
+            <td>Map tiles switched off (Offline basemap) on a closed network</td>
+          </tr>
+          <tr>
+            <td>Unauthorised access to the API</td>
+            <td><span class="pill live">Live</span> The demo binds to <span class="code">127.0.0.1</span> &mdash; this laptop only</td>
+            <td><span class="pill dep">Deployment</span> The department's existing land-records login, HTTPS, role-based access, and the API restricted to its own site</td>
+          </tr>
+          <tr>
+            <td>Illegal construction hidden by a clean paper file</td>
+            <td><span class="pill live">Live</span> Independent measurement against the sanctioned plan. <span class="code">UNAUTHORISED_STOREY</span> found 12 floors where 11 were sanctioned &mdash; 2,699.6 m&sup3; unregistered</td>
+            <td>Enforcement workflow in the municipal system</td>
+          </tr>
+        </tbody>
+        <caption>Ten validation rules (17 finding types) run over the whole register on every build. These are the ones with a security consequence.</caption>
+      </table>
+    </div>
+
+    <h3>On privacy</h3>
+    <p>
+      We store what a land record already stores and add nothing personal
+      &mdash; no Aadhaar, no phone numbers, no financial information. The data
+      sits on the department's own machine.
+    </p>
+
+    <div class="note dont">
+      <h3>Do not say</h3>
+      <p>
+        Do not say &ldquo;fully secure&rdquo;, &ldquo;unhackable&rdquo;, or
+        &ldquo;blockchain-grade&rdquo;. Do not claim encryption, login or audit
+        logs &mdash; we have not built them, and the prototype's API is open on
+        localhost by design. If the judge notices, own it:
+        <b>&ldquo;Authentication is a solved problem and the department already
+        has it. A register that cannot tell you when a boundary changed is not
+        solved &mdash; that is where we spent our time.&rdquo;</b>
+      </p>
+      <p>
+        If they ask about blockchain: the problem here is <em>detection</em>, and
+        a digest already gives us that. A ledger is a deployment choice, not a
+        prerequisite.
+      </p>
+    </div>
+
+    <div class="note show">
+      <h3>Show on screen</h3>
+      <ul>
+        <li>Paste <span class="code">27-025-004-tek92et5v3-B0A-00UL-U</span> in Locate &rarr; finds SHV-1101.</li>
+        <li>Change one character to <span class="code">&hellip;-B09-00UL-U</span> &rarr; rejected: &ldquo;check character mismatch: expected N&rdquo;.</li>
+        <li>Validation tab &rarr; the overlapping flats, with the volume in m&sup3;.</li>
+        <li>Inspector &rarr; the provenance line on any object.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== Q2 ===================== -->
+  <section class="q" id="users">
+    <div class="q-head">
+      <span class="qnum">Q2</span>
+      <div>
+        <h2>&ldquo;Who will actually have this software?&rdquo;</h2>
+        <p class="who">Answered by <b>Pratik</b> &middot; feasibility</p>
+      </div>
+    </div>
+
+    <div class="say">
+      <div class="say-label">Say this &middot; 30 seconds</div>
+      <p>
+        It is installed by the land-records department or the municipal
+        corporation, on their own machine &mdash; we are the tool, they are the
+        custodian of the data. Three kinds of people use it, and only one of
+        them is technical. The survey cell runs the pipeline once for an area.
+        The land-records officer only uses the viewer and the search box. Other
+        departments never open the software at all &mdash; they query the API.
+      </p>
+      <p class="hindi">
+        Tehsildar ko Python nahi chalana hai. Unko sirf click karna hai.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Who</th><th>What they do</th><th>Training needed</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Survey contractor or state GIS cell</td>
+            <td>Runs the pipeline once per area, from drone LiDAR</td>
+            <td>Specialist &mdash; this is their existing job</td>
+          </tr>
+          <tr>
+            <td>Land-records officer, tehsil office</td>
+            <td>Types a ULPIN or an owner name, inspects the property, reads the findings</td>
+            <td>None beyond &ldquo;click the thing you want to know about&rdquo;</td>
+          </tr>
+          <tr>
+            <td>Building-permission cell</td>
+            <td>Uploads an approved 2D plan; the 3D register updates in under a second</td>
+            <td>One page of instructions</td>
+          </tr>
+          <tr>
+            <td>Metro, water, drainage authorities</td>
+            <td>Query the API for clearance before excavation</td>
+            <td>None &mdash; their own system calls ours</td>
+          </tr>
+          <tr>
+            <td>Citizens and owners</td>
+            <td><span class="pill no">Not built</span> Read-only view of their own property</td>
+            <td>Future scope, after a pilot</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note dont">
+      <h3>Do not say</h3>
+      <p>
+        Do not suggest any department has adopted or approved this. If asked
+        &ldquo;have you spoken to a land-records department?&rdquo; the honest
+        answer is <b>&ldquo;not yet &mdash; that is exactly what a pilot on one
+        ward would establish.&rdquo;</b> Do not claim a statutory basis for a 3D
+        ULPIN either; we extend the existing ULPIN, and adoption is a policy
+        decision.
+      </p>
+    </div>
+
+    <div class="note show">
+      <h3>Show on screen</h3>
+      <ul>
+        <li>Register tab &mdash; the whole 143-object register an officer would browse.</li>
+        <li>2D &rarr; 3D tab &mdash; the plan upload the permission cell would use.</li>
+        <li><span class="code">/docs</span> &mdash; the API another department would call.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== Q3 ===================== -->
+  <section class="q" id="cost">
+    <div class="q-head">
+      <span class="qnum">Q3</span>
+      <div>
+        <h2>&ldquo;How does this save cost?&rdquo;</h2>
+        <p class="who">Answered by <b>Himanshu</b> &middot; impact</p>
+      </div>
+    </div>
+
+    <div class="say">
+      <div class="say-label">Say this &middot; 30 seconds</div>
+      <p>
+        Three ways. First, it removes the largest manual job in cadastral
+        mapping &mdash; tracing building footprints by hand &mdash; and does it
+        at 98.4 % accuracy against known truth. Second, it needs no new survey:
+        it uses the drone flights SVAMITVA already funds, the 2D layer DILRMP
+        already holds, and the building plans the municipal office already has.
+        Third, and this is the real saving, it catches the errors that would
+        otherwise become court cases.
+      </p>
+      <p class="hindi">
+        Sabse bada kharcha survey ka nahi hai &mdash; galti ka hai. Aur galti
+        court mein pakdi jaaye, tab tak bahut der ho chuki hoti hai.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Task, per city block</th><th>Conventional practice (estimate)</th><th class="num">Bhoomi3D</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Digitise building footprints</td><td>Traced by hand, roughly 15&ndash;30 min per building</td><td class="num">11.5 s</td></tr>
+          <tr><td>Determine storey count and levels</td><td>Site visit or plan lookup per building</td><td class="num">1.0 s</td></tr>
+          <tr><td>Check clearances against utilities</td><td>Letters between departments</td><td class="num">0.07 s</td></tr>
+          <tr><td>Build 3D volumes and assign identifiers</td><td>Not done at all today</td><td class="num">0.06 s</td></tr>
+          <tr><td>Detect unauthorised construction</td><td>Complaint-driven; often never</td><td class="num">included</td></tr>
+          <tr><td><b>Whole block, 609,177 points</b></td><td>&mdash;</td><td class="num"><b>&lt; 1 min</b></td></tr>
+        </tbody>
+        <caption>The right-hand column is measured on our machine. The left-hand column is an estimate of current practice and must be presented as one.</caption>
+      </table>
+    </div>
+
+    <h3>The other three savings</h3>
+    <ul>
+      <li><b>No licence fee.</b> Every dependency is open source, there are no API keys, and it runs offline on an ordinary laptop. Proprietary 3D GIS is sold per seat, which a tehsil office cannot carry.</li>
+      <li><b>No new survey for the 2D path.</b> A building-permission office with an approved plan gets a 3D register in under a second, with no drone at all.</li>
+      <li><b>Disputes prevented, not litigated.</b> An overlap caught by the validator costs seconds. The same overlap found after both deeds are registered costs years.</li>
+    </ul>
+
+    <div class="note dont">
+      <h3>Do not say</h3>
+      <p>
+        No rupee figures and no multipliers &mdash; not &ldquo;100&times;
+        faster&rdquo;, not &ldquo;saves 6 months per ward&rdquo;. We have not
+        measured a manual baseline, and a judge who works in land records will
+        know the real number and stop trusting everything else we said.
+      </p>
+      <p>
+        If they press for a figure: <b>&ldquo;We can give you the cost
+        structure, not a number we have not measured &mdash; the survey is
+        already funded under SVAMITVA, the licence cost is zero, and the
+        operator time is one run per block. The number we did measure is under a minute per block and 98.4 % IoU.&rdquo;</b>
+      </p>
+    </div>
+
+    <div class="note show">
+      <h3>Show on screen</h3>
+      <ul>
+        <li>Accuracy tab &mdash; every stage scored against ground truth.</li>
+        <li>Re-run AI pipeline &mdash; all eight stages live, in seconds.</li>
+        <li>2D &rarr; 3D tab &mdash; a plan becoming a register with no survey.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===================== Q4 ===================== -->
+  <section class="q" id="stack">
+    <div class="q-head">
+      <span class="qnum">Q4</span>
+      <div>
+        <h2>&ldquo;What tech stack are you using, and why that one?&rdquo;</h2>
+        <p class="who">Answered by <b>Sanket</b> &middot; technical</p>
+      </div>
+    </div>
+
+    <div class="say">
+      <div class="say-label">Say this &middot; 30 seconds</div>
+      <p>
+        Python for everything that touches geometry, because that is where the
+        geospatial world already lives. FastAPI for the API, because it
+        publishes its own documentation page &mdash; that is how another
+        department integrates without a meeting. Shapely for the geometry,
+        which sits on GEOS, the same engine PostGIS uses, so moving to a
+        spatial database later rewrites nothing. The viewer is hand-written
+        WebGL2 with no framework and no CDN, because a tehsil office machine
+        may have no internet. And no deep-learning framework at all &mdash; a
+        land record needs a reason, not a probability.
+      </p>
+      <p class="hindi">
+        Har layer proven hai. Naya sirf wahi hai jo kahin milta hi nahi &mdash;
+        3D identity aur uska validation.
+      </p>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>What we use</th><th>Why this one</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Language</td>
+            <td>Python 3.12</td>
+            <td>Every serious geospatial library is here, and it is the same world as QGIS and state GIS tooling &mdash; a department can hire for it</td>
+          </tr>
+          <tr>
+            <td>API</td>
+            <td>FastAPI + Uvicorn, Pydantic</td>
+            <td>Requests are validated by type, <span class="code">/docs</span> is generated automatically for other departments, and the pipeline streams live over SSE</td>
+          </tr>
+          <tr>
+            <td>Geometry</td>
+            <td>Shapely 2 (GEOS)</td>
+            <td>Exact polygon operations. Our volumes and clearances are closed-form on top of it, and GEOS is what PostGIS runs &mdash; the migration path is already there</td>
+          </tr>
+          <tr>
+            <td>Numerics</td>
+            <td>NumPy 2, SciPy</td>
+            <td>The pipeline is array maths over 609,177 points &mdash; KD-trees, eigenvalues, least squares</td>
+          </tr>
+          <tr>
+            <td>Geodesy</td>
+            <td><b>Written by us</b> &mdash; no PROJ, no pyproj</td>
+            <td>WGS-84 ellipsoid, local ENU, UTM and a 7-parameter Helmert fit, tested to a full ECEF round trip. Keeps installation to one <span class="code">pip install</span> with no GDAL toolchain</td>
+          </tr>
+          <tr>
+            <td>Survey file formats</td>
+            <td>laspy (LAS/LAZ), rasterio (GeoTIFF), Pillow</td>
+            <td>The formats a real survey actually arrives in. All three are optional imports &mdash; <span class="code">/api/health</span> reports what the installation can read instead of crashing</td>
+          </tr>
+          <tr>
+            <td>The AI stages</td>
+            <td>Classical computer vision and statistics &mdash; no trained model</td>
+            <td>SMRF ground filtering, DBSCAN clustering, RANSAC planes, facade periodicity. Explainable, no GPU, no labelled Indian-rooftop dataset needed, and every parameter has a physical meaning. An ONNX seam is documented for a trained model later</td>
+          </tr>
+          <tr>
+            <td>Viewer</td>
+            <td>Hand-written WebGL2 &mdash; 3,304 lines, zero dependencies</td>
+            <td>No npm, no build step, no CDN, so it works offline. We also needed exact control to pick one flat out of a solid stack, which a general 3D library fights you on</td>
+          </tr>
+          <tr>
+            <td>Storage</td>
+            <td>JSON document register</td>
+            <td>Correct and fast at demonstration scale. We say out loud that the register class is the seam where PostGIS goes for a city</td>
+          </tr>
+          <tr>
+            <td>Tests</td>
+            <td>pytest &mdash; 158 tests</td>
+            <td>Every accuracy number we quote is asserted in a test, not printed by a script</td>
+          </tr>
+        </tbody>
+        <caption>Ten packages, all open source, all installable with one command. No cloud account, no API key, no GPU.</caption>
+      </table>
+    </div>
+
+    <h3>What we deliberately did not use</h3>
+    <ul>
+      <li><b>No Three.js or any CDN library</b> &mdash; the viewer must run on a machine with no internet.</li>
+      <li><b>No PROJ / GDAL</b> &mdash; the classic reason a geospatial tool fails to install in a government office. Ours installs with pip.</li>
+      <li><b>No PyTorch, TensorFlow or scikit-learn</b> &mdash; we cannot put &ldquo;the model was 87 % confident&rdquo; in a land record.</li>
+      <li><b>No cloud service</b> &mdash; ownership data stays on the department&rsquo;s machine.</li>
+    </ul>
+
+    <div class="note dont">
+      <h3>Do not say</h3>
+      <p>
+        Do not call our pipeline &ldquo;deep learning&rdquo; or &ldquo;a neural
+        network&rdquo;. It is deterministic computer vision and statistics, and
+        saying otherwise collapses the moment a judge asks what we trained on.
+        Say <b>&ldquo;computer vision and geometry, with a documented interface
+        where a trained model can be plugged in.&rdquo;</b>
+      </p>
+      <p>
+        Do not claim it scales to a whole city today. The JSON store is honest
+        at this scale; PostGIS is the named next step.
+      </p>
+    </div>
+
+    <div class="note show">
+      <h3>Show on screen</h3>
+      <ul>
+        <li><span class="code">/docs</span> &mdash; the API documentation FastAPI generates by itself.</li>
+        <li><span class="code">/api/health</span> &mdash; which survey formats this machine can read.</li>
+        <li>Re-run AI pipeline &mdash; eight stages streaming live, no GPU anywhere.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p><b>The one habit that wins these questions:</b> answer, then show. Every claim on this sheet has something on screen behind it.</p>
+    <p>If we do not have something, we say we do not have it, and we say what we chose to build instead. Judges forgive a gap. They do not forgive a bluff.</p>
+  </footer>
+
+</div>

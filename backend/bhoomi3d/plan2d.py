@@ -564,32 +564,39 @@ def render_svg(plan: Plan2D, level: int = 0, *, width: int = 720) -> str:
         return f"{(x - xs0) * scale:.1f},{(ys1 - y) * scale:.1f}"
 
     style = {
-        "parcel":  ("none", "#5C8C61", "2", "6 4"),
-        "outline": ("#00000010", "#4A5364", "1.6", ""),
-        "unit":    ("#E0BC7555", "#B8791C", "1.2", ""),
-        "infra":   ("#ED545933", "#ED5459", "1.2", "4 3"),
+        "parcel":  ("none", "#2F6B3A", "2.2", "7 4"),
+        "outline": ("#D8D2C4", "#2A3038", "2.4", ""),
+        "unit":    ("#F0E2B8", "#8A5A12", "1.4", ""),
+        "infra":   ("#ED545928", "#C62828", "1.4", "5 3"),
     }
 
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" '
         f'width="{width}" height="{height}" font-family="ui-monospace, monospace">',
-        f'<rect width="{width}" height="{height}" fill="#FAFBF9"/>',
+        # Paper-like sheet with a faint blueprint tint
+        f'<defs>'
+        f'<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" '
+        f'patternTransform="rotate(45)">'
+        f'<line x1="0" y1="0" x2="0" y2="6" stroke="#C9C2B2" stroke-width="1"/>'
+        f'</pattern>'
+        f'</defs>',
+        f'<rect width="{width}" height="{height}" fill="#F3EFE6"/>',
     ]
 
-    # a 10 m grid, so the drawing reads as a survey plan rather than a diagram
-    step = 10.0
-    gx = math.ceil(xs0 / step) * step
-    while gx < xs1:
-        x = (gx - xs0) * scale
-        parts.append(f'<line x1="{x:.1f}" y1="0" x2="{x:.1f}" y2="{height}" '
-                     f'stroke="#E2E7E0" stroke-width="1"/>')
-        gx += step
-    gy = math.ceil(ys0 / step) * step
-    while gy < ys1:
-        y = (ys1 - gy) * scale
-        parts.append(f'<line x1="0" y1="{y:.1f}" x2="{width}" y2="{y:.1f}" '
-                     f'stroke="#E2E7E0" stroke-width="1"/>')
-        gy += step
+    # a 5 m minor / 10 m major grid — reads as a survey sheet
+    for step, stroke, sw in ((5.0, "#E4DDD0", "0.6"), (10.0, "#D0C8B8", "1")):
+        gx = math.ceil(xs0 / step) * step
+        while gx < xs1:
+            x = (gx - xs0) * scale
+            parts.append(f'<line x1="{x:.1f}" y1="0" x2="{x:.1f}" y2="{height}" '
+                         f'stroke="{stroke}" stroke-width="{sw}"/>')
+            gx += step
+        gy = math.ceil(ys0 / step) * step
+        while gy < ys1:
+            y = (ys1 - gy) * scale
+            parts.append(f'<line x1="0" y1="{y:.1f}" x2="{width}" y2="{y:.1f}" '
+                         f'stroke="{stroke}" stroke-width="{sw}"/>')
+            gy += step
 
     for poly, kind, label in shapes:
         fill, stroke, sw, dash = style[kind]
@@ -597,13 +604,39 @@ def render_svg(plan: Plan2D, level: int = 0, *, width: int = 720) -> str:
         for g in geoms:
             pts = " ".join(pt(x, y) for x, y in g.exterior.coords)
             d = f' stroke-dasharray="{dash}"' if dash else ""
+            # Outer building shell gets a wall hatch so it reads as masonry
+            if kind == "outline":
+                parts.append(f'<polygon points="{pts}" fill="url(#hatch)" '
+                             f'stroke="none"/>')
             parts.append(f'<polygon points="{pts}" fill="{fill}" '
-                         f'stroke="{stroke}" stroke-width="{sw}"{d}/>')
+                         f'stroke="{stroke}" stroke-width="{sw}"{d} '
+                         f'stroke-linejoin="round"/>')
+            # Inner wall offset for units — a second stroke sells "wall thickness"
+            if kind == "unit" and g.area > 1.0:
+                try:
+                    inset = g.buffer(-0.35)
+                    if not inset.is_empty:
+                        igs = inset.geoms if inset.geom_type == "MultiPolygon" else [inset]
+                        for ig in igs:
+                            ipts = " ".join(pt(x, y) for x, y in ig.exterior.coords)
+                            parts.append(
+                                f'<polygon points="{ipts}" fill="none" '
+                                f'stroke="#C9A66A" stroke-width="0.7" opacity="0.7"/>')
+                except Exception:
+                    pass
         if kind in ("unit", "parcel") and label:
             c = poly.representative_point()
             parts.append(
                 f'<text x="{(c.x - xs0) * scale:.1f}" y="{(ys1 - c.y) * scale:.1f}" '
-                f'font-size="10" fill="#3B454A" text-anchor="middle">{label}</text>')
+                f'font-size="10" fill="#3B454A" text-anchor="middle" '
+                f'font-weight="600">{label}</text>')
+
+    # North arrow
+    parts.append(
+        f'<g transform="translate(22,28)">'
+        f'<polygon points="0,-14 5,6 -5,6" fill="#2A3038"/>'
+        f'<text x="0" y="18" font-size="10" fill="#3B454A" text-anchor="middle" '
+        f'font-weight="700">N</text></g>')
 
     # scale bar
     bar = 10 * scale
