@@ -223,7 +223,7 @@ function highlightFinding(finding) {
   const pts = [];
   buildPrismEdges(finding.geometry.rings, finding.geometry.z_min,
                   finding.geometry.z_max, pts);
-  renderer.addLines(pts, { color: [1.0, 0.28, 0.30, 1.0], layer: 'finding' });
+  renderer.addLines(pts, { color: [1.0, 0.28, 0.30, 1.0], layer: 'finding', overlay: true });
 }
 
 // --- level isolation -----------------------------------------------------------
@@ -328,12 +328,23 @@ function renderInspector(obj) {
     : `Machine-derived boundary, confidence ${fmt(obj.confidence, 2)}. Requires ground verification before publication.`));
   box.appendChild(prov);
 
-  if (obj.findings?.length) {
-    box.appendChild(el('h3', null, `Findings (${obj.findings.length})`));
-    for (const f of obj.findings) {
+  const related = findingsFor(obj);
+  const val = el('div', 'prov ' + (related.some((f) => f.severity !== 'info') ? 'inferred' : 'auth'));
+  val.appendChild(el('span', 'badge', related.length ? 'validation' : 'validated'));
+  val.appendChild(el('span', null, related.length
+    ? related.map((f) => `${f.severity}: ${f.title}`).join(' · ')
+    : 'No defects on this volume.'));
+  box.appendChild(val);
+
+  if (related.length) {
+    box.appendChild(el('h3', null, `Findings (${related.length})`));
+    for (const f of related) {
       const card = el('div', 'finding sev-' + f.severity);
       card.appendChild(el('div', 'f-title', f.title));
       card.appendChild(el('div', 'f-detail', f.detail));
+      const show = el('button', 'link show', 'show in 3D');
+      show.addEventListener('click', () => showFinding(f));
+      card.appendChild(show);
       box.appendChild(card);
     }
   }
@@ -361,12 +372,14 @@ function renderInspector(obj) {
   }
 }
 
-async function selectObject(objectId, { fly = true } = {}) {
+async function selectObject(objectId, { fly = true, tab = true } = {}) {
   try {
     const obj = await api.object(objectId);
     state.selected = obj;
     selectionEdges(obj);
     renderInspector(obj);
+    if (tab) showTab('inspector');
+    setStatus((obj.name || obj.object_id) + (obj.ulpin ? ' · ' + obj.ulpin : ''), 'ok');
     if (fly) {
       const c = obj.centroid;
       const span = Math.max(obj.bbox[3] - obj.bbox[0], obj.bbox[4] - obj.bbox[1],
@@ -512,9 +525,12 @@ function renderValidation(report) {
   panel.innerHTML = '';
 
   const c = report.counts || {};
+  const notes = (c.warning || 0) + (c.info || 0);
   const summary = el('div', 'val-summary ' + (report.valid ? 'pass' : 'fail'));
   summary.appendChild(el('div', 'val-verdict',
-    report.valid ? 'REGISTER VALID' : 'REGISTER HAS DEFECTS'));
+    !report.valid ? 'REGISTER HAS DEFECTS'
+      : notes ? `NO ERRORS — ${notes} ITEM${notes > 1 ? 'S' : ''} TO REVIEW`
+      : 'REGISTER VALID'));
   const chips = el('div', 'val-chips');
   for (const [k, v] of [['error', c.error], ['warning', c.warning], ['info', c.info]]) {
     const chip = el('span', 'chip sev-' + k, `${v || 0} ${k}`);
@@ -562,16 +578,7 @@ function renderValidation(report) {
     }
     if (f.geometry) {
       const b = el('button', 'link show', 'show in 3D');
-      b.addEventListener('click', () => {
-        highlightFinding(f);
-        const r = f.geometry.rings?.[0] || [];
-        if (r.length) {
-          const cx = r.reduce((s, p) => s + p[0], 0) / r.length;
-          const cy = r.reduce((s, p) => s + p[1], 0) / r.length;
-          camera.flyTo(vec3(cx, cy, (f.geometry.z_min + f.geometry.z_max) / 2), 55);
-          state.needsRedraw = true;
-        }
-      });
+      b.addEventListener('click', () => showFinding(f));
       actions.appendChild(b);
     }
     card.appendChild(actions);
@@ -1155,7 +1162,111 @@ function stepLevel(delta) {
   applyLevelFilter();
 }
 
+function findingsFor(obj) {
+  const ids = new Set([obj.object_id, obj.parent_id].filter(Boolean));
+  const seen = new Set();
+  const out = [];
+  const consider = (f) => {
+    const key = f.rule + '|' + (f.objects || []).join(',');
+    if (seen.has(key)) return;
+    if (!(f.objects || []).some((id) => ids.has(id))) return;
+    seen.add(key);
+    out.push(f);
+  };
+  for (const f of obj.findings || []) consider(f);
+  for (const f of state.findings || []) consider(f);
+  return out;
+}
+
+function showFinding(finding, objectId) {
+  highlightFinding(finding);
+  const oid = objectId || (finding.objects || [])[0];
+  if (oid) {
+    const kind = state.byId.get(oid)?.kind;
+    const layer = kind && STYLE[kind]?.layer;
+    const box = layer && document.querySelector('#layer-' + layer);
+    if (box && !box.checked) {
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+    }
+    selectObject(oid, { fly: false, tab: false });
+  }
+  const ring = finding.geometry?.rings?.[0] || [];
+  if (ring.length) {
+    const cx = ring.reduce((s, p) => s + p[0], 0) / ring.length;
+    const cy = ring.reduce((s, p) => s + p[1], 0) / ring.length;
+    camera.flyTo(vec3(cx, cy, (finding.geometry.z_min + finding.geometry.z_max) / 2), 42);
+  }
+  state.needsRedraw = true;
+}
+
 // --- picking -------------------------------------------------------------------
+// A click is resolved by shooting a ray through the same view the picture was
+// drawn with and taking the nearest unit box it enters. That stays on the
+// window the pointer is over, instead of whatever id the colour buffer quantised.
+const KIND_RANK = {
+  unit: 0, storey: 1, building: 2, infrastructure: 3, parcel: 4, air_rights: 5,
+};
+
+function layerVisible(kind) {
+  const layer = STYLE[kind]?.layer;
+  if (!layer) return true;
+  const box = document.querySelector('#layer-' + layer);
+  return !box || box.checked;
+}
+
+function rayAabb(origin, dir, box) {
+  let t0 = 0, t1 = 1;
+  for (let i = 0; i < 3; i++) {
+    const min = box[i], max = box[i + 3];
+    if (Math.abs(dir[i]) < 1e-12) {
+      if (origin[i] < min || origin[i] > max) return null;
+      continue;
+    }
+    let a = (min - origin[i]) / dir[i];
+    let b = (max - origin[i]) / dir[i];
+    if (a > b) { const s = a; a = b; b = s; }
+    t0 = Math.max(t0, a);
+    t1 = Math.min(t1, b);
+    if (t0 > t1) return null;
+  }
+  return t0;
+}
+
+function pickVolumeAt(px, py) {
+  if (!invertMat || !canvas.clientWidth || !canvas.clientHeight) return null;
+  const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
+  const inv = invertMat(camera.viewProj(aspect));
+  const ndcX = (px / canvas.clientWidth) * 2 - 1;
+  const ndcY = 1 - (py / canvas.clientHeight) * 2;
+  const near = unproject(inv, ndcX, ndcY, -1);
+  const far = unproject(inv, ndcX, ndcY, 1);
+  const dir = [far[0] - near[0], far[1] - near[1], far[2] - near[2]];
+  const explode = renderer.explode || 0;
+  const ref = renderer.explodeRef || 0;
+  let best = null, bestRank = 99, bestT = Infinity;
+  for (const o of state.objects) {
+    if (!o.bbox || KIND_RANK[o.kind] === undefined) continue;
+    if (!layerVisible(o.kind)) continue;
+    if (o.z_min != null && o.z_min > renderer.sectionZ + 0.02) continue;
+    let box = o.bbox;
+    if (explode) {
+      const z0 = box[2] + explode * (box[2] - ref) * 0.12;
+      const z1 = box[5] + explode * (box[5] - ref) * 0.12;
+      box = [box[0], box[1], Math.min(z0, z1), box[3], box[4], Math.max(z0, z1)];
+    }
+    const t = rayAabb(near, dir, box);
+    if (t == null) continue;
+    const rank = KIND_RANK[o.kind];
+    if (rank < bestRank || (rank === bestRank && t < bestT)) {
+      bestRank = rank;
+      bestT = t;
+      best = o.object_id;
+    }
+  }
+  return best;
+}
+
 function wirePicking() {
   let downAt = null;
 
@@ -1165,7 +1276,7 @@ function wirePicking() {
     if (!downAt) return;
     const moved = Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]);
     downAt = null;
-    if (moved > 4 || e.button !== 0) return;   // a drag, not a click
+    if (moved > 8 || e.button !== 0) return;
 
     const rect = canvas.getBoundingClientRect();
     const px = e.clientX - rect.left, py = e.clientY - rect.top;
@@ -1176,6 +1287,11 @@ function wirePicking() {
       return;
     }
 
+    const id = pickVolumeAt(px, py);
+    if (id) {
+      await selectObject(id, { fly: false });
+      return;
+    }
     const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
     const idx = renderer.pick(camera.viewProj(aspect), px, py);
     if (idx < 0 || idx >= state.indexToId.length) {
@@ -1193,16 +1309,19 @@ function wirePicking() {
     clearTimeout(hoverTimer);
     hoverTimer = setTimeout(() => {
       const rect = canvas.getBoundingClientRect();
-      const aspect = canvas.clientWidth / Math.max(canvas.clientHeight, 1);
-      const idx = renderer.pick(camera.viewProj(aspect),
-                                e.clientX - rect.left, e.clientY - rect.top);
+      const px = e.clientX - rect.left, py = e.clientY - rect.top;
+      const id = pickVolumeAt(px, py);
+      const idx = id
+        ? (state.idToIndex.get(id) ?? -1)
+        : renderer.pick(camera.viewProj(
+            canvas.clientWidth / Math.max(canvas.clientHeight, 1)), px, py);
       if (idx !== state.hover) {
         state.hover = idx;
         const label = $('#hoverLabel');
         if (idx >= 0 && idx < state.indexToId.length) {
-          const id = state.indexToId[idx];
-          const o = state.byId.get(id);
-          label.textContent = o ? `${o.name || id}  ·  ${o.kind}` : id;
+          const hid = state.indexToId[idx];
+          const o = state.byId.get(hid);
+          label.textContent = o ? `${o.name || hid}  ·  ${o.kind}` : hid;
           label.style.display = 'block';
           label.style.left = (e.clientX + 14) + 'px';
           label.style.top = (e.clientY + 14) + 'px';
@@ -1267,9 +1386,13 @@ async function loadAll() {
   renderInspector(null);
 
   const errs = validation.counts?.error || 0;
+  const notes = (validation.counts?.warning || 0) + (validation.counts?.info || 0);
   setStatus(errs
     ? `Register loaded — ${errs} defect${errs > 1 ? 's' : ''} found`
-    : 'Register loaded — no defects', errs ? 'warn' : 'ok');
+    : notes
+      ? `Register loaded — no errors, ${notes} review note${notes > 1 ? 's' : ''}`
+      : 'Register loaded — no defects',
+    errs ? 'warn' : notes ? 'busy' : 'ok');
   state.needsRedraw = true;
 }
 

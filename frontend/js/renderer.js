@@ -62,9 +62,10 @@ out vec4 fragColor;
 
 vec3 idToColor(float id) {
   int i = int(id) + 1;
-  return vec3(float((i      ) & 255) / 255.0,
-              float((i >>  8) & 255) / 255.0,
-              float((i >> 16) & 255) / 255.0);
+  // Half a quantum of bias so 8-bit rounding cannot land on the previous id.
+  return vec3(float((i      ) & 255),
+              float((i >>  8) & 255),
+              float((i >> 16) & 255)) / 255.0 + vec3(0.5 / 255.0);
 }
 
 void main() {
@@ -367,6 +368,7 @@ export class Renderer {
       color: opts.color || [1, 1, 1, 0.8],
       layer: opts.layer || 'edges',
       visible: opts.visible !== false,
+      overlay: !!opts.overlay,
     };
     this.lineBatches.push(batch);
     return batch;
@@ -459,9 +461,11 @@ export class Renderer {
     gl.uniform1f(this.lineU.uExplodeRef, this.explodeRef);
     for (const b of this.lineBatches) {
       if (!b.visible) continue;
+      if (b.overlay) gl.disable(gl.DEPTH_TEST);
       gl.uniform4fv(this.lineU.uColor, b.color);
       gl.bindVertexArray(b.vao);
       gl.drawArrays(gl.LINES, 0, b.count);
+      if (b.overlay) gl.enable(gl.DEPTH_TEST);
     }
     gl.bindVertexArray(null);
     gl.disable(gl.BLEND);
@@ -553,6 +557,9 @@ export class Renderer {
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.disable(gl.BLEND);
+    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.CULL_FACE);
+    gl.depthFunc(gl.LESS);
     gl.depthMask(true);
 
     gl.useProgram(this.solidProg);

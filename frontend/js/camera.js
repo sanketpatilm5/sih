@@ -114,15 +114,26 @@ export class OrbitCamera {
 
   attach(canvas, onChange) {
     let dragging = null;
+    let pending = null;
     let lastX = 0, lastY = 0;
 
     canvas.addEventListener('pointerdown', (e) => {
       canvas.setPointerCapture(e.pointerId);
-      dragging = (e.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+      // A click must not orbit. Orbit starts only after the pointer travels.
+      pending = { x: e.clientX, y: e.clientY, button: e.button };
+      dragging = null;
       lastX = e.clientX; lastY = e.clientY;
     });
 
     canvas.addEventListener('pointermove', (e) => {
+      if (pending && !dragging) {
+        const dx = e.clientX - pending.x, dy = e.clientY - pending.y;
+        if (Math.hypot(dx, dy) > 8) {
+          dragging = (pending.button === 2 || e.shiftKey) ? 'pan' : 'orbit';
+          lastX = pending.x;
+          lastY = pending.y;
+        }
+      }
       if (!dragging) return;
       const dx = e.clientX - lastX, dy = e.clientY - lastY;
       lastX = e.clientX; lastY = e.clientY;
@@ -134,8 +145,9 @@ export class OrbitCamera {
     });
 
     const stop = (e) => {
-      if (dragging) canvas.releasePointerCapture?.(e.pointerId);
+      if (dragging || pending) canvas.releasePointerCapture?.(e.pointerId);
       dragging = null;
+      pending = null;
     };
     canvas.addEventListener('pointerup', stop);
     canvas.addEventListener('pointercancel', stop);
